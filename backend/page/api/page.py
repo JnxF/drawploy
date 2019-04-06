@@ -14,7 +14,7 @@ from imutils.perspective import four_point_transform
 from skimage.filters import threshold_local
 
 from backend.settings import AZURE_KEY
-from page.api.providers.google import _deploy, _get_content
+from page.api.providers.google import _deploy, _get_content, _create_content
 from page.enums import google_resource_type, resource_names, google_property_type
 
 def get_text(image: str):
@@ -164,8 +164,8 @@ def detectDraw(base64request: str):
 
 def create(image: str, token: str):
     # ocr_result = get_text(image)
-    infrastructure = detectDraw(image)
-    infrastructure_example = {
+    #infrastructure = detectDraw(image)
+    infrastructure = {
         "81b98e47-6eea-43f8-a34c-70354464d160": {
             "type": 0,
             "linked": ["c9f83a36-b35e-4808-8479-ff6876fc8df2", "37315dae-34af-4877-8344-a759c34e68b3"]
@@ -181,7 +181,8 @@ def create(image: str, token: str):
     }
 
     infrastructure_json = infrastructure_to_json(infrastructure, google_resource_type, google_property_type, "us-central1-f")
-    return {"status": 0}
+    result = _create_content(infrastructure_json, token)
+    return {"status": result}
 
 
 def retrieve(token: str, pk=id):
