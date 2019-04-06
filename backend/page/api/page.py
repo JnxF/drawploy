@@ -1,8 +1,30 @@
 from collections import OrderedDict
 
 import yaml
+import requests, json, os 
 
 from page.enums import google_resource_type, resource_names, google_property_type
+
+def get_text(image: str):
+    headers = {
+        'Content-Type': "application/octet-stream",
+        'Ocp-Apim-Subscription-Key': os.environ['AZURE_KEY'],
+    }
+    url = "https://australiaeast.api.cognitive.microsoft.com/vision/v2.0/recognizeText?mode=Handwritten"
+
+    res = requests.post(url=url,
+                        headers=headers,
+                        data=image)
+
+    if res.status_code == 202:
+        d = {'status': 'Running'}
+        while(d['status'] == 'Running'):
+            r = requests.get(res.headers['Operation-Location'], headers=headers)
+            d = json.loads(r.content)
+        return d['recognitionResult']
+    
+    #VERY BAD
+    return None
 
 
 def create(image: str):
@@ -14,6 +36,8 @@ def create(image: str):
     #         - property 1
     #         - property 2
     #         - ...
+    
+    ocr_result = get_text(image)
     infrastructure = []
 
     infrastructure_example = {

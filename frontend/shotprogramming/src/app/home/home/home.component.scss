@@ -3,11 +3,27 @@
   flex-direction: column;
   width: 80%;
   margin: 0 auto;
-  height: 100%;
+  flex: 1 1 auto;
   align-items: center;
   justify-content: center;
 
   button {
     width: 100%;
+    font-size: 4rem;
+    height: 7rem;
+
+    span {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+
+      mat-icon {
+        font-size: 5rem;
+        width: 5rem;
+        height: 5rem;
+        margin-right: 1rem;
+      }
+    }
   }
 }
