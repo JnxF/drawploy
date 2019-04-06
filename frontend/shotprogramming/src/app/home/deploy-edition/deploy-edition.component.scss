@@ -1,0 +1,47 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  padding: 1rem;
+  width: 80%;
+  margin: 0 auto;
+  flex: 1 1 auto;
+  align-items: center;
+  justify-content: center;
+
+  button.initial {
+    width: 100%;
+    font-size: 4rem;
+    height: 7rem;
+
+    span {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: center;
+
+      mat-icon {
+        font-size: 5rem;
+        width: 5rem;
+        height: 5rem;
+        margin-right: 1rem;
+      }
+    }
+  }
+
+  mat-card {
+    width: 100%;
+
+    label {
+      width: 100%;
+    }
+
+    mat-form-field {
+      width: 100%;
+      margin-bottom: 0.5rem;
+    }
+
+    button {
+      width: 100%;
+    }
+  }
+}
