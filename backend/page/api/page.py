@@ -244,11 +244,11 @@ def create(image: str, token: str, email: str):
 
 
 def retrieve(token: str, email=None, pk=None):
-    deployment = models.Deployment.objects.filter(id=int(pk), email=email).first()
+    deployment = models.Deployment.objects.all()
     if not deployment:
         return {"content": dict(), "id": int(pk), "email": email}
     result = json.loads(deployment.target)
-    return {"content": deployment, "id": int(pk), "email": email, "a": deployment.target}
+    return {"content": deployment, "id": int(pk), "email": email, "a": deployment.first().target}
 
 
 def update(content: str, token: str, email: str, pk=id):
