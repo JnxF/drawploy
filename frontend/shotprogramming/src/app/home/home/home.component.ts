@@ -19,10 +19,11 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit() {
-    // TODO: ask for deployments and save in deployments
-    this.deployments.push({
-      name: 'quickstart-deployment',
-      id: '54660732508021769'
+    this._api.get<{content: any}>('page/').subscribe((response: {content: any}) => {
+      if (response.content) {
+        Object.entries<string>(response.content).forEach(([id, name]) =>
+        this.deployments.push({name: name, id: id}));
+      }
     });
   }
 

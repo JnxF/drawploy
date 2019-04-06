@@ -14,6 +14,7 @@ from imutils.perspective import four_point_transform
 from skimage.filters import threshold_local
 
 from backend.settings import AZURE_KEY
+from page.api.providers.google import _deploy, _get_content, _create_content
 from page.enums import google_resource_type, resource_names, google_property_type
 import uuid
 
@@ -34,7 +35,6 @@ def get_text(image: str):
             r = requests.get(res.headers['Operation-Location'], headers=headers)
             d = json.loads(r.content)
         network = {}
-
         for l in d['recognitionResult']['lines']:
             i = uuid.uuid4()
             t = 0
@@ -49,6 +49,7 @@ def get_text(image: str):
                     }
 
         return network
+    
     #VERY BAD
     return None
 
@@ -195,7 +196,8 @@ def create(image: str, token: str):
     }
 
     infrastructure_json = infrastructure_to_json(infrastructure, google_resource_type, google_property_type, "us-central1-f")
-    return {"status": 0}
+    result = _create_content(infrastructure_json, token)
+    return {"status": result}
 
 
 def retrieve(token: str, pk=id):
@@ -228,6 +230,12 @@ def _list(token: str):
             "id2": "nom2"
         }
     }
+
+
+def deploy(token: str, pk: str):
+    content = _get_content(pk, token)
+    result = _deploy(content, token)
+    return {"status": result}
 
 
 def infrastructure_to_json(infrastructure: dict, translate_resource: list, translate_type: list, zone: str):

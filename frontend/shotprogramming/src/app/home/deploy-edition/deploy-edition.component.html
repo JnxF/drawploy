@@ -11,11 +11,17 @@
   <mat-card-header>
     <label mat-card-title for="code">Code:</label>
   </mat-card-header>
-  <mat-form-field appearance="outline">
+  <mat-form-field appearance="outline" (input)="editedDeploy = true">
     <textarea matInput [value]="deploymentStr" id="code" cdkTextareaAutosize [cdkAutosizeMinRows]="15"></textarea>
   </mat-form-field>
-  <button mat-flat-button color="primary">
-    <mat-icon>cloud_upload</mat-icon>
-    Drawploy!
-  </button>
+  <div class="buttons">
+    <button mat-flat-button color="primary" *ngIf="editedDeploy" (click)="save()">
+      <mat-icon>save</mat-icon>
+      Save
+    </button>
+    <button mat-flat-button color="primary" *ngIf="!editedDeploy" (click)="deploy()">
+      <mat-icon>cloud_upload</mat-icon>
+      Drawploy!
+    </button>
+  </div>
 </mat-card>
