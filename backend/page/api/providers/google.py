@@ -37,7 +37,7 @@ def _get_list(token: str):
 def _get_deployment(id: str, email: str):
     deployment = models.Deployment.objects.filter(id=id, email=email).first()
     if not deployment:
-        return {}
+        return "{}"
     return deployment.target
 
 
