@@ -1,14 +1,24 @@
 from collections import OrderedDict
 
 import yaml
-import requests, json, os 
+import requests, json, os
+import base64
+import io
 
+import cv2
+import imutils
+import numpy as np
+from PIL import Image
+from imutils.perspective import four_point_transform
+from skimage.filters import threshold_local
+
+from backend.settings import AZURE_KEY
 from page.enums import google_resource_type, resource_names, google_property_type
 
 def get_text(image: str):
     headers = {
         'Content-Type': "application/octet-stream",
-        'Ocp-Apim-Subscription-Key': os.environ['AZURE_KEY'],
+        'Ocp-Apim-Subscription-Key': AZURE_KEY,
     }
     url = "https://australiaeast.api.cognitive.microsoft.com/vision/v2.0/recognizeText?mode=Handwritten"
 
@@ -26,16 +36,8 @@ def get_text(image: str):
     #VERY BAD
     return None
 
-def detectDraw(base64request: str):
-    import base64
-    import io
 
-    import cv2
-    import imutils
-    import numpy as np
-    from PIL import Image
-    from imutils.perspective import four_point_transform
-    from skimage.filters import threshold_local
+def detectDraw(base64request: str):
 
     def base64toImage(base64_string):
         imgdata = base64.b64decode(str(base64_string))
