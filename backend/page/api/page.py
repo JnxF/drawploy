@@ -238,7 +238,7 @@ def create(image: str, token: str, email: str):
     result = _create_content(infrastructure_yaml, token)
     result["code"] = infrastructure_json
     if result["status"] == "RUNNING":
-        deployment = models.Deployment(id=result["targetId"], name=result["targetName"], email=email, target=str(infrastructure_json))
+        deployment = models.Deployment(id=result["targetId"], name=result["targetName"], email=email, target=json.dumps(infrastructure_json))
         deployment.save()
     return {"content": result}
 
@@ -247,7 +247,7 @@ def retrieve(token: str, email=None, pk=None):
     deployment = models.Deployment.objects.filter(id=int(pk), email=email).first()
     if not deployment:
         return {"content": dict()}
-    return {"content": deployment.target}
+    return {"content": json.loads(deployment.target)}
 
 
 def update(content: str, token: str, email: str, pk=id):
