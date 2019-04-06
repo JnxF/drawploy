@@ -131,15 +131,6 @@ def detectDraw(base64request: str):
 
 
 def create(image: str):
-    # Infrastructure format
-    # - resource
-    #     - id
-    #     - type
-    #     - properties
-    #         - property 1
-    #         - property 2
-    #         - ...
-    
     # ocr_result = get_text(image)
     # shapes = detectDraw(image)
     infrastructure = []
@@ -147,18 +138,15 @@ def create(image: str):
     infrastructure_example = {
         "81b98e47-6eea-43f8-a34c-70354464d160": {
             "type": 0,
-            "properties": {
-                "disks": ["c9f83a36-b35e-4808-8479-ff6876fc8df2"],
-                "networks": ["37315dae-34af-4877-8344-a759c34e68b3"]
-            }
+            "linked": ["c9f83a36-b35e-4808-8479-ff6876fc8df2", "37315dae-34af-4877-8344-a759c34e68b3"]
         },
         "c9f83a36-b35e-4808-8479-ff6876fc8df2": {
             "type": 1,
-            "properties": {}
+            "linked": []
         },
         "37315dae-34af-4877-8344-a759c34e68b3": {
             "type": 2,
-            "properties": {}
+            "linked": []
         }
     }
     infrastructure_json = infrastructure_to_json(infrastructure_example, google_resource_type, google_property_type, "us-central1-f")
@@ -175,11 +163,17 @@ def infrastructure_to_json(infrastructure: dict, translate_resource: list, trans
         element_translated["name"] = resource_names[element["type"]] + "-" + str(i)
         element_translated["properties"] = OrderedDict()
         element_translated["properties"]["zone"] = zone
-        '''for property_name, property_values in element["properties"].items():
-            if element["type"] == 0 and property_name == "disks" or "network":
-                for element_nested in property_values:
-                    if not element_translated["properties"][translate_type[infrastructure[element_nested]["type"]]]:
-                        element_translated["properties"][translate_type[infrastructure[element_nested]["type"]]] = dict()'''
+        for element_nested in element["linked"]:
+            if element["type"] == 0 and infrastructure[element_nested]["type"] == 1 or 2:
+                if translate_type[infrastructure[element_nested]["type"]] not in element_translated["properties"]:
+                    element_translated["properties"][translate_type[infrastructure[element_nested]["type"]]] = []
+                element_current = OrderedDict()
+                if infrastructure[element_nested]["type"] == 1:
+                    element_current["deviceName"] = "name"
+                    element_current["type"] = "PERSISTENT"
+                    element_current["boot"] = "true"
+                    element_current["autoDelete"] = "true"
+                    list.append(element_translated["properties"][translate_type[infrastructure[element_nested]["type"]]], element_current)
         list.append(infrastructure_aux["resources"], element_translated)
         i += 1
     yaml.add_representer(OrderedDict, represent_ordereddict)
