@@ -16,7 +16,7 @@ from skimage.filters import threshold_local
 
 from backend.settings import AZURE_KEY
 from page import models
-from page.api.providers.google import _deploy, _create_content, _get_list
+from page.api.providers.google import _deploy, _create_content
 from page.enums import google_resource_type, resource_names, google_property_type
 import uuid
 
