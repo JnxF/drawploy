@@ -1,0 +1,8 @@
+Django
+pytz
+djangorestframework
+markdown
+django-filter
+django-extra-fields
+drf_yasg
+pillow
