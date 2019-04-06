@@ -179,8 +179,8 @@ def detectDraw(base64request: str):
 
 def create(image: str, token: str):
     infrastructure = get_text(image)
-    #iinfrastructure = detectDraw(image)
-    infrastructure_example = {
+    #infrastructure = detectDraw(image)
+    infrastructure_2 = {
         "81b98e47-6eea-43f8-a34c-70354464d160": {
             "type": 0,
             "linked": ["c9f83a36-b35e-4808-8479-ff6876fc8df2", "37315dae-34af-4877-8344-a759c34e68b3"]
@@ -194,9 +194,9 @@ def create(image: str, token: str):
             "linked": []
         }
     }
-
     infrastructure_json = infrastructure_to_json(infrastructure, google_resource_type, google_property_type, "us-central1-f")
-    result = _create_content(infrastructure_json, token)
+    infrastructure_yaml = infrastructure_to_yaml(infrastructure_json)
+    result = _create_content(infrastructure_yaml, token)
     return {"status": result}
 
 

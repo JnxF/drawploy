@@ -18,18 +18,24 @@ def _deploy(data: dict, token: str):
     return {"state": 0}
 
 
-def _get_content(id: str, token:str):
+def _get_content(id: str, token: str):
     return {}
 
 
-def _create_content(data: dict, token:str):
-    payload = dict()
-    payload["name"] = str(uuid.uuid4())
-
+def _create_content(data: dict, token: str):
+    payload = {
+        "name": "example-config-with-templates-2",
+        "target": {
+            "config": {
+                "content": data
+            }
+        }
+    }
+    payload = str(payload)
+    print(payload)
     headers = {
         'Authorization': "Bearer " + token,
         'Content-Type': "application/json",
     }
     response = requests.request("POST", url_template, data=payload, headers=headers)
     return response.text
-
