@@ -16,7 +16,7 @@ from skimage.filters import threshold_local
 
 from backend.settings import AZURE_KEY
 from page import models
-from page.api.providers.google import _deploy, _create_content
+from page.api.providers.google import _deploy, _create_content, _get_list
 from page.enums import google_resource_type, resource_names, google_property_type
 import uuid
 
@@ -257,11 +257,10 @@ def update(content: str, token: str, email: str, pk=id):
 
 
 def _list(token: str, email: str):
-    deployments = models.Deployment.objects.filter(email=email)
-    results = list()
-    for deployment in deployments:
-        list.append(results, {"id": deployment.id, "name": deployment.name})
-    return {"content": results}
+    result = _get_list(token)
+    if "deployments" in result:
+        return {"content": result["deployments"]}
+    return {"content": []}
 
 
 def deploy(token: str, email: str, pk: str):
