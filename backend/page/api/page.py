@@ -247,7 +247,9 @@ def retrieve(token: str, email=None, pk=None):
     deployment = models.Deployment.objects.filter(id=int(pk), email=email).first()
     if not deployment:
         return {"content": dict()}
-    return {"content": json.loads(deployment.target)}
+    result = json.loads(deployment.target)
+    result["content"]["id"] = pk
+    return {"content": result}
 
 
 def update(content: str, token: str, email: str, pk=id):
