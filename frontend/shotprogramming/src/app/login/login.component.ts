@@ -13,12 +13,12 @@ export class LoginComponent implements AfterViewInit {
   public auth2: any;
 
   public googleInit() {
-    if (gapi) {
+    if (window['gapi']) {
       gapi.load('auth2', () => {
         this.auth2 = gapi.auth2.init({
           client_id: '1075282744065-e9a4npkj3o82anu7ufii4av0u5c1v53b.apps.googleusercontent.com',
           cookiepolicy: 'single_host_origin',
-          scope: 'profile email'
+          scope: 'profile email https://www.googleapis.com/auth/cloud-platform'
         });
         this.attachSignin(document.getElementById('googleBtn'));
       });

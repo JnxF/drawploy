@@ -1,5 +1,7 @@
 <mat-toolbar color="primary">
-  <span>Drawploy</span>
+  <span [routerLink]="['home']" class="to-home">
+    <mat-icon [inline]="true">home</mat-icon> Drawploy
+  </span>
   <span class="separator"></span>
   <span *ngIf="api.googleUser != null" class="user-email mat-body-1">{{api.userEmail}}</span>
   <button *ngIf="api.googleUser != null" mat-flat-button (click)="signOut()">Sign out</button>

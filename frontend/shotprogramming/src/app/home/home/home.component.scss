@@ -2,5 +2,15 @@
   padding: 1rem;
   width: 80%;
   margin: 0 auto;
-  flex: 1 1 auto;
+  flex: 1 0 auto;
+}
+
+mat-card {
+  width: 90%;
+  height: 90%;
+  cursor: pointer;
+}
+
+a {
+  width: 100%;
 }
