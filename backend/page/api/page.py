@@ -14,29 +14,44 @@ from imutils.perspective import four_point_transform
 from skimage.filters import threshold_local
 
 from backend.settings import AZURE_KEY
-from page.api.providers.google import _deploy, _get_content, _create_content
+from page.api.providers.google import _deploy, _create_content, _get_list
 from page.enums import google_resource_type, resource_names, google_property_type
+import uuid
+
 
 def get_text(image: str):
     headers = {
         'Content-Type': "application/octet-stream",
-        'Ocp-Apim-Subscription-Key': AZURE_KEY,
+        'Ocp-Apim-Subscription-Key': "928d25e00c4b453e8db0b334d8bfc6fc",
     }
     url = "https://australiaeast.api.cognitive.microsoft.com/vision/v2.0/recognizeText?mode=Handwritten"
 
     res = requests.post(url=url,
                         headers=headers,
-                        data=image)
-
+                        data=base64.decodebytes(image.encode("ascii")))
     if res.status_code == 202:
         d = {'status': 'Running'}
         while(d['status'] == 'Running'):
             r = requests.get(res.headers['Operation-Location'], headers=headers)
             d = json.loads(r.content)
-        return d['recognitionResult']
+        network = {}
+        for l in d['recognitionResult']['lines']:
+            i = uuid.uuid4()
+            t = 0
+            if l['text'] == 'NET' or l['text'] == 'NET 1':
+                t = 2
+            elif( l['text'] == 'VM' or l['text'] == 'VH'):
+                t = 1
+
+            network[i] = {
+                    'type': t,
+                    'linked':[]
+                    }
+
+        return network
     
     #VERY BAD
-    return None
+    return dict()
 
 
 def detectDraw(base64request: str):
@@ -163,9 +178,9 @@ def detectDraw(base64request: str):
 
 
 def create(image: str, token: str):
-    # ocr_result = get_text(image)
-    #infrastructure = detectDraw(image)
-    infrastructure = {
+    infrastructure = get_text(image)
+    # infrastructure = detectDraw(image)
+    infrastructure_2 = {
         "81b98e47-6eea-43f8-a34c-70354464d160": {
             "type": 0,
             "linked": ["c9f83a36-b35e-4808-8479-ff6876fc8df2", "37315dae-34af-4877-8344-a759c34e68b3"]
@@ -179,10 +194,11 @@ def create(image: str, token: str):
             "linked": []
         }
     }
-
     infrastructure_json = infrastructure_to_json(infrastructure, google_resource_type, google_property_type, "us-central1-f")
-    result = _create_content(infrastructure_json, token)
-    return {"status": result}
+    infrastructure_yaml = infrastructure_to_yaml(infrastructure_json)
+    result = _create_content(infrastructure_yaml, token)
+    result["code"] = infrastructure_json
+    return {"content": result}
 
 
 def retrieve(token: str, pk=id):
@@ -209,16 +225,12 @@ def update(content: str, token, pk=id):
 
 
 def _list(token: str):
-    return {
-        "content": {
-            "id1": "nom1",
-            "id2": "nom2"
-        }
-    }
+    result = _get_list(token)
+    return {"content": result["deployments"]}
 
 
 def deploy(token: str, pk: str):
-    content = _get_content(pk, token)
+    content = dict() #_get_content(pk, token)
     result = _deploy(content, token)
     return {"status": result}
 
