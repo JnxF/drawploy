@@ -179,9 +179,35 @@ def create(image: str):
         }
     }
 
-
     infrastructure_json = infrastructure_to_json(infrastructure, google_resource_type, google_property_type, "us-central1-f")
     return {"content": infrastructure_json}
+
+
+def retrieve(id: str):
+    infrastructure_example = {
+        "81b98e47-6eea-43f8-a34c-70354464d160": {
+            "type": 0,
+            "linked": ["c9f83a36-b35e-4808-8479-ff6876fc8df2", "37315dae-34af-4877-8344-a759c34e68b3"]
+        },
+        "c9f83a36-b35e-4808-8479-ff6876fc8df2": {
+            "type": 1,
+            "linked": []
+        },
+        "37315dae-34af-4877-8344-a759c34e68b3": {
+            "type": 2,
+            "linked": []
+        }
+    }
+    infrastructure_json = infrastructure_to_json(infrastructure_example, google_resource_type, google_property_type, "us-central1-f")
+    return {"content": infrastructure_json}
+
+
+def update(content: str, pk=id):
+    return {"status": 0}
+
+
+def _list():
+    return []
 
 
 def infrastructure_to_json(infrastructure: dict, translate_resource: list, translate_type: list, zone: str):
