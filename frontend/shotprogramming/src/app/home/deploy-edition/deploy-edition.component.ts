@@ -26,7 +26,7 @@ export class DeployEditionComponent {
     if (this._route.snapshot.fragment) {
       this.loading = true;
       this._api.get<any>(
-        `page/${this._route.snapshot.fragment}`
+        `page/${this._route.snapshot.fragment}/`
       ).subscribe(deployment => {
         this.deployment = {id: deployment.content.id, code: deployment.content.code};
         this.editedDeploy = false;
