@@ -1,6 +1,6 @@
 <mat-grid-list cols="3" gutterSize="1rem">
   <mat-grid-tile *ngFor="let dep of deployments">
-    <mat-card ngClass="mat-elevation-z2" (click)="edit(dep.id)">
+    <mat-card ngClass="mat-elevation-z2" (click)="edit(dep.name)">
       <mat-card-title>{{dep.name}}</mat-card-title>
       <mat-card-subtitle>{{dep.id}}</mat-card-subtitle>
     </mat-card>

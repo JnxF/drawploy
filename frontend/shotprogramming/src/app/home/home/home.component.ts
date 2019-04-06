@@ -14,8 +14,8 @@ export class HomeComponent implements OnInit {
   constructor(private _api: ApiService, private _router: Router) {
   }
 
-  edit(deploymentId: string) {
-    this._router.navigate(['deploy-edition'], {fragment: deploymentId}).then();
+  edit(deploymentName: string) {
+    this._router.navigate(['deploy-edition'], {fragment: deploymentName}).then();
   }
 
   ngOnInit() {
