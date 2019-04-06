@@ -14,6 +14,7 @@ from imutils.perspective import four_point_transform
 from skimage.filters import threshold_local
 
 from backend.settings import AZURE_KEY
+from page.api.providers.google import _deploy, _get_content
 from page.enums import google_resource_type, resource_names, google_property_type
 
 def get_text(image: str):
@@ -213,6 +214,12 @@ def _list(token: str):
             "id2": "nom2"
         }
     }
+
+
+def deploy(token: str, pk: str):
+    content = _get_content(pk, token)
+    result = _deploy(content, token)
+    return {"status": result}
 
 
 def infrastructure_to_json(infrastructure: dict, translate_resource: list, translate_type: list, zone: str):
