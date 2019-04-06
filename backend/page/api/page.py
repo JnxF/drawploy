@@ -15,6 +15,7 @@ from skimage.filters import threshold_local
 
 from backend.settings import AZURE_KEY
 from page.enums import google_resource_type, resource_names, google_property_type
+import uuid
 
 def get_text(image: str):
     headers = {
@@ -32,8 +33,22 @@ def get_text(image: str):
         while(d['status'] == 'Running'):
             r = requests.get(res.headers['Operation-Location'], headers=headers)
             d = json.loads(r.content)
-        return d['recognitionResult']
-    
+        network = {}
+
+        for l in d['recognitionResult']['lines']:
+            i = uuid.uuid4()
+            t = 0
+            if l['text'] == 'NET' or l['text'] == 'NET 1':
+                t = 2
+            elif( l['text'] == 'VM' or l['text'] == 'VH'):
+                t = 1
+
+            network[i] = {
+                    'type': t,
+                    'linked':[]
+                    }
+
+        return network
     #VERY BAD
     return None
 
@@ -162,8 +177,8 @@ def detectDraw(base64request: str):
 
 
 def create(image: str, token: str):
-    # ocr_result = get_text(image)
-    infrastructure = detectDraw(image)
+    infrastructure = get_text(image)
+    #iinfrastructure = detectDraw(image)
     infrastructure_example = {
         "81b98e47-6eea-43f8-a34c-70354464d160": {
             "type": 0,
