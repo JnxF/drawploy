@@ -13,7 +13,6 @@ export class SessionGuard implements CanActivate {
   canActivate(route: ActivatedRouteSnapshot,
               state: RouterStateSnapshot):
     Observable<boolean | UrlTree> | Promise<boolean | UrlTree> | boolean | UrlTree {
-    console.log(this._api.googleUser);
     if (this._api.googleUser != null) {
       return true;
     }
