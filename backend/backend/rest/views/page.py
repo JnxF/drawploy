@@ -23,9 +23,7 @@ class PageAPI(ViewSet):
         return Response(page)
 
     def update(self, request, pk):
-        serializer = PageContentSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        page = update(**serializer.validated_data, token=request.GET.get('token'), pk=pk)
+        page = update(request.GET.get('content'), request.GET.get('token'), pk)
         return Response(page)
 
     def list(self, request):

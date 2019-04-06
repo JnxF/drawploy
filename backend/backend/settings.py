@@ -130,3 +130,4 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 AZURE_KEY = os.environ.get("AZURE_KEY", "")
+GOOGLE_PROJECT = os.environ.get("GOOGLE_PROJECT", "testing-copen")
