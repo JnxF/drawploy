@@ -30,3 +30,7 @@ sqlparse
 uritemplate
 urllib3
 django-cors-headers
+opencv-python
+imutils
+scikit-image
+scipy
