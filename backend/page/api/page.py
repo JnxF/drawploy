@@ -176,7 +176,10 @@ def infrastructure_to_json(infrastructure: dict, translate_resource: list, trans
         element_translated["properties"] = OrderedDict()
         element_translated["properties"]["zone"] = zone
         '''for property_name, property_values in element["properties"].items():
-            element_translated["properties"][translate_type[property_name]] = dict()'''
+            if element["type"] == 0 and property_name == "disks" or "network":
+                for element_nested in property_values:
+                    if not element_translated["properties"][translate_type[infrastructure[element_nested]["type"]]]:
+                        element_translated["properties"][translate_type[infrastructure[element_nested]["type"]]] = dict()'''
         list.append(infrastructure_aux["resources"], element_translated)
         i += 1
     yaml.add_representer(OrderedDict, represent_ordereddict)

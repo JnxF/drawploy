@@ -25,7 +25,7 @@ SECRET_KEY = '6@)rn+*wzdh+$%3y4%*wjivvt9s9o)40hpm*!7x3h1=7fpbaj)'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "drawploy.com", "www.drawploy.com"]
 
 CORS_ORIGIN_WHITELIST = (
     'localhost',
