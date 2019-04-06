@@ -11,7 +11,7 @@
   <mat-card-header>
     <label mat-card-title for="code">Code:</label>
   </mat-card-header>
-  <mat-form-field appearance="outline" (input)="editedDeploy = true">
+  <mat-form-field appearance="outline" (input)="editedDeploy = true" >
     <textarea matInput [value]="deploymentStr" id="code" cdkTextareaAutosize [cdkAutosizeMinRows]="15"></textarea>
   </mat-form-field>
   <div class="buttons">

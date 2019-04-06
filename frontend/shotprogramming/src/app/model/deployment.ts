@@ -1,4 +1,5 @@
 export interface Deployment {
+  id: string;
   resources: Resource<DeploymentProperties>[];
 }
 
