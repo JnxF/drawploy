@@ -14,6 +14,7 @@ from imutils.perspective import four_point_transform
 from skimage.filters import threshold_local
 
 from backend.settings import AZURE_KEY
+from page.api.providers.google import _deploy, _get_content
 from page.enums import google_resource_type, resource_names, google_property_type
 
 def get_text(image: str):
@@ -161,7 +162,7 @@ def detectDraw(base64request: str):
     return result
 
 
-def create(image: str):
+def create(image: str, token: str):
     # ocr_result = get_text(image)
     infrastructure = detectDraw(image)
     infrastructure_example = {
@@ -180,10 +181,10 @@ def create(image: str):
     }
 
     infrastructure_json = infrastructure_to_json(infrastructure, google_resource_type, google_property_type, "us-central1-f")
-    return {"content": infrastructure_json}
+    return {"status": 0}
 
 
-def retrieve(id: str):
+def retrieve(token: str, pk=id):
     infrastructure_example = {
         "81b98e47-6eea-43f8-a34c-70354464d160": {
             "type": 0,
@@ -202,12 +203,23 @@ def retrieve(id: str):
     return {"content": infrastructure_json}
 
 
-def update(content: str, pk=id):
+def update(content: str, token, pk=id):
     return {"status": 0}
 
 
-def _list():
-    return []
+def _list(token: str):
+    return {
+        "content": {
+            "id1": "nom1",
+            "id2": "nom2"
+        }
+    }
+
+
+def deploy(token: str, pk: str):
+    content = _get_content(pk, token)
+    result = _deploy(content, token)
+    return {"status": result}
 
 
 def infrastructure_to_json(infrastructure: dict, translate_resource: list, translate_type: list, zone: str):
