@@ -29,3 +29,4 @@ six
 sqlparse
 uritemplate
 urllib3
+django-cors-headers
