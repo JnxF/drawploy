@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 import yaml
 
 from page.enums import google_resource_type, resource_names, google_property_type
@@ -36,18 +38,32 @@ def create(image: str):
 
 
 def infrastructure_to_yaml(infrastructure: dict, translate_resource: list, translate_type: list, zone: str):
-    infrastructure_aux = dict()
+    infrastructure_aux = OrderedDict()
     infrastructure_aux["resources"] = []
     i = 0
     for element_id, element in infrastructure.items():
-        element_translated = dict()
+        element_translated = OrderedDict()
         element_translated["type"] = translate_resource[element["type"]]
         element_translated["name"] = resource_names[element["type"]] + "-" + str(i)
-        element_translated["properties"] = dict()
+        element_translated["properties"] = OrderedDict()
         element_translated["properties"]["zone"] = zone
         '''for property_name, property_values in element["properties"].items():
             element_translated["properties"][translate_type[property_name]] = dict()'''
         list.append(infrastructure_aux["resources"], element_translated)
         i += 1
+    yaml.add_representer(OrderedDict, represent_ordereddict)
     infrastructure_yaml = yaml.dump(infrastructure_aux, allow_unicode=True)
+    print(infrastructure_yaml)
     return infrastructure_yaml
+
+
+def represent_ordereddict(dumper, data):
+    value = []
+
+    for item_key, item_value in data.items():
+        node_key = dumper.represent_data(item_key)
+        node_value = dumper.represent_data(item_value)
+
+        value.append((node_key, node_value))
+
+    return yaml.nodes.MappingNode(u'tag:yaml.org,2002:map', value)
