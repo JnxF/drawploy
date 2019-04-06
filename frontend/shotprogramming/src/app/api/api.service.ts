@@ -15,7 +15,7 @@ export class ApiService {
   public get options(): any {
     return {
       observe: 'body',
-      params: {token: this.userToken}
+      params: {token: this.userToken, email: this.userEmail}
     };
   }
 
