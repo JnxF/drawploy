@@ -19,10 +19,9 @@ export class HomeComponent implements OnInit {
   }
 
   ngOnInit() {
-    this._api.get<{content: any}>('page/').subscribe((response: {content: any}) => {
+    this._api.get<{ content: any }>('page/').subscribe((response: { content: DeploymentShort[] }) => {
       if (response.content) {
-        Object.entries<string>(response.content).forEach(([id, name]) =>
-        this.deployments.push({name: name, id: id}));
+        this.deployments = response.content;
       }
     });
   }

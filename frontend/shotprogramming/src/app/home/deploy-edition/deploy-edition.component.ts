@@ -18,7 +18,7 @@ export class DeployEditionComponent {
   @ViewChild(MatInput) private _input: MatInput;
 
   public get deploymentStr(): string {
-    return JSON.stringify(this.deployment, null, 2);
+    return JSON.stringify(this.deployment.code, null, 2);
   }
 
   constructor(private _matSnackbar: MatSnackBar, private _api: ApiService, private _error: ErrorToStringService,
