@@ -23,7 +23,7 @@ def _deploy(data: dict, token: str):
     return {"state": 0}
 
 
-def _get_list(token: str):
+'''def _get_list(token: str):
     headers = {
         'Authorization': "Bearer " + token,
         'Content-Type': "application/json",
@@ -31,7 +31,7 @@ def _get_list(token: str):
     response = requests.request("GET", url_template, headers=headers)
     if response:
         return json.loads(response.text)
-    return dict()
+    return dict()'''
 
 
 def _create_content(data: dict, token: str):

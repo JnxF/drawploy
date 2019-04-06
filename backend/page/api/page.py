@@ -257,11 +257,11 @@ def update(content: str, token: str, email: str, pk=id):
 
 
 def _list(token: str, email: str):
-    result = _get_list(token)
-    return {"content": result}
-    if "deployments" in result:
-        return {"content": result["deployments"]}
-    return {"content": []}
+    deployments = models.Deployment.objects.filter(email=email)
+    results = dict()
+    for deployment in deployments:
+        results[deployment.id] = deployment.name
+    return {"content": results}
 
 
 def deploy(token: str, email: str, pk: str):
