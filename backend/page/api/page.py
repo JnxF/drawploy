@@ -16,7 +16,7 @@ from skimage.filters import threshold_local
 
 from backend.settings import AZURE_KEY
 from page import models
-from page.api.providers.google import _deploy, _create_content, _get_list, _get_deployment
+from page.api.providers.google import _deploy, _create_content, _get_list
 from page.enums import google_resource_type, resource_names, google_property_type
 import uuid
 
@@ -235,14 +235,18 @@ def create(image: str, token: str, email: str):
     result = _create_content(infrastructure_yaml, token)
     result["code"] = infrastructure_json
     if result["status"] == "RUNNING":
-        deployment = models.Deployment(id=result["targetId"], name=result["targetName"], email=email, target=result["targetTarget"])
+        deployment = models.Deployment(id=result["targetId"], name=result["targetName"], email=email, target=json.dumps(infrastructure_json))
         deployment.save()
     return {"content": result}
 
 
 def retrieve(token: str, email=None, pk=None):
-    result = _get_deployment(pk, email)
-    result = yaml.load(result)
+    deployment = models.Deployment.objects.filter(id=int(pk), email=email).first()
+    if not deployment:
+        return {"content": dict()}
+    result = dict()
+    result["code"] = json.loads(deployment.target)
+    result["id"] = pk
     return {"content": result}
 
 

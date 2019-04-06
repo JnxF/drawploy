@@ -34,13 +34,6 @@ def _get_list(token: str):
     return dict()
 
 
-def _get_deployment(id: str, email: str):
-    deployment = models.Deployment.objects.filter(id=id, email=email).first()
-    if not deployment:
-        return {}
-    return deployment.target
-
-
 def _create_content(data: dict, token: str):
     name = ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(26)]).lower()
     payload = {
