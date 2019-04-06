@@ -201,6 +201,7 @@ def create(image: str, token: str, email: str):
     result["code"] = infrastructure_json
     if result["status"] == "RUNNING":
         deployment = models.Deployment(id=result["targetId"], name=result["targetName"], email=email, target=result["targetTarget"])
+        deployment.save()
     return {"content": result}
 
 

@@ -41,7 +41,7 @@ def _get_deployment(id: str, token: str):
     }
     print(url_tmp)
     response = requests.request("GET", url_tmp, headers=headers)
-    return json.loads(response.text)
+    return {}
 
 
 def _create_content(data: dict, token: str):
