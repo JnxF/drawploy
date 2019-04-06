@@ -198,6 +198,7 @@ def create(image: str, token: str):
     infrastructure_json = infrastructure_to_json(infrastructure, google_resource_type, google_property_type, "us-central1-f")
     infrastructure_yaml = infrastructure_to_yaml(infrastructure_json)
     result = _create_content(infrastructure_yaml, token)
+    result["content"] = infrastructure_json
     return {"status": result}
 
 
