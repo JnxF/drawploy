@@ -60,6 +60,7 @@ def _create_content(data: dict, token: str):
         'Content-Type': "application/json",
     }
     response = requests.request("POST", url_template, data=payload, headers=headers)
-    response.text["targetName"] = name
-    response.text["targetTarget"] = data
-    return json.loads(response.text)
+    return_data = json.loads(response.text)
+    return_data["targetName"] = name
+    return_data["targetTarget"] = data
+    return return_data
