@@ -12,12 +12,19 @@ export class ApiService {
 
   public googleUser: any;
 
+  public get options(): any {
+    return {
+      observe: 'body',
+      params: {token: this.userToken}
+    };
+  }
+
   public get userEmail(): string {
     return this.googleUser.getBasicProfile().getEmail();
   }
 
   public get userToken(): string {
-    return this.googleUser.getAuthResponse().id_token;
+    return this.googleUser.getAuthResponse().access_token;
   }
 
   constructor(private _http: HttpClient) {
@@ -28,7 +35,7 @@ export class ApiService {
   }
 
   public get<T>(relativeUrl: string, instantiateClass?: Type<T>): Observable<T> {
-    const myPipe = this._http.get(ApiService.sCompleteUrl(relativeUrl), {observe: 'body'});
+    const myPipe = this._http.get(ApiService.sCompleteUrl(relativeUrl), this.options) as Observable<any>;
     if (instantiateClass) {
       myPipe.pipe(
         map(obj => new instantiateClass(obj))
@@ -38,9 +45,7 @@ export class ApiService {
   }
 
   public post<P, R>(relativeUrl: string, object: any, instantiateClass?: Type<R>): Observable<R> | Observable<P> {
-    const myPipe = this._http.post(ApiService.sCompleteUrl(relativeUrl), object, {
-      observe: 'body'
-    });
+    const myPipe = this._http.post(ApiService.sCompleteUrl(relativeUrl), object, this.options);
     if (instantiateClass) {
       myPipe.pipe(
         map(obj => new instantiateClass(obj))
