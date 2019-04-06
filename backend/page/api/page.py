@@ -258,6 +258,7 @@ def update(content: str, token: str, email: str, pk=id):
 
 def _list(token: str, email: str):
     result = _get_list(token)
+    return {"content": result}
     if "deployments" in result:
         return {"content": result["deployments"]}
     return {"content": []}
