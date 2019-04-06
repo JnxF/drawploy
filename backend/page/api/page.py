@@ -1,3 +1,4 @@
+import uuid
 from collections import OrderedDict
 
 import yaml
@@ -49,6 +50,9 @@ def detectDraw(base64request: str):
         ratio = image.shape[0] / 500.0
         orig = image.copy()
         image = imutils.resize(image, height=500)
+        height, width, _ = image.shape
+
+
 
         # convert the image to grayscale, blur it, and find edges
         # in the image
@@ -62,6 +66,13 @@ def detectDraw(base64request: str):
         cnts = imutils.grab_contours(cnts)
         cnts = sorted(cnts, key=cv2.contourArea, reverse=True)[:5]
 
+
+        if cv2.contourArea(cnts[0]) < 0.4 * width * height:
+            return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+
+        screenCnt = -1
+        defined = False
+
         # loop over the contours
         for c in cnts:
             # approximate the contour
@@ -72,7 +83,11 @@ def detectDraw(base64request: str):
             # can assume that we have found our screen
             if len(approx) == 4:
                 screenCnt = approx
+                defined = True
                 break
+
+        if not defined:
+            return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
         # show the contour (outline) of the piece of paper
         print("STEP 2: Find contours of paper")
@@ -97,25 +112,33 @@ def detectDraw(base64request: str):
 
     def detectContours(neta):
         edges = cv2.Canny(neta, 100, 200)
-        edges = cv2.dilate(edges, None, iterations=1)
-        edges = cv2.erode(edges, None, iterations=1)
+        #edges = cv2.dilate(edges, None, iterations=1)
+        #edges = cv2.erode(edges, None, iterations=1)
 
-        cnts, hierarchy = cv2.findContours(edges, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
+        cnts, hierarchy = cv2.findContours(edges, cv2.RETR_LIST , cv2.CHAIN_APPROX_SIMPLE)
 
         final = cv2.cvtColor(edges, cv2.COLOR_GRAY2RGB)
 
         detected = []
 
+        i = 0
         for c in cnts:
             area = cv2.contourArea(c)
-            if area < 300:
+            if area < 200:
                 continue
 
+            peri = cv2.arcLength(c, True)
+            approx = cv2.approxPolyDP(c, 0.04 * peri, True)
+            vertex = len(approx)
+
+            print("Trobat contorn", area, vertex)
             x, y, w, h = cv2.boundingRect(c)
 
             detected.append([x, y, x + w, y, x + w, y + h, x, y + h])
 
-            cv2.drawContours(final, [c], 0, (0, 255, 255), 3)
+            cv2.drawContours(final, [c], 0, (0, 255 - i , 255 - i), 3)
+
+            i += 60
 
         cv2.imshow("Scanned", imutils.resize(final, height=650))
         cv2.waitKey(0)
@@ -127,14 +150,20 @@ def detectDraw(base64request: str):
     imatge = base64toImage(base64request)
     neta = cleanImage(imatge)
     detectados = detectContours(neta)
-    return detectados
+
+    result = dict()
+    for i, d in enumerate(detectados):
+        result[str(uuid.uuid4())] = {
+            "type": 0,
+            "linked" : []
+        }
+
+    return result
 
 
 def create(image: str):
     # ocr_result = get_text(image)
-    # shapes = detectDraw(image)
-    infrastructure = []
-
+    infrastructure = detectDraw(image)
     infrastructure_example = {
         "81b98e47-6eea-43f8-a34c-70354464d160": {
             "type": 0,
@@ -149,7 +178,9 @@ def create(image: str):
             "linked": []
         }
     }
-    infrastructure_json = infrastructure_to_json(infrastructure_example, google_resource_type, google_property_type, "us-central1-f")
+
+
+    infrastructure_json = infrastructure_to_json(infrastructure, google_resource_type, google_property_type, "us-central1-f")
     return {"content": infrastructure_json}
 
 
