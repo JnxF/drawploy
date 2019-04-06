@@ -6,6 +6,7 @@ import requests
 from urllib3.connectionpool import xrange
 
 from backend.settings import GOOGLE_PROJECT
+from page import models
 
 url_template = "https://www.googleapis.com/deploymentmanager/v2/projects/" + GOOGLE_PROJECT + "/global/deployments"
 url_template_get = "https://www.googleapis.com/deploymentmanager/v2/projects/" + GOOGLE_PROJECT + "/global/deployments/"
@@ -33,15 +34,11 @@ def _get_list(token: str):
     return dict()
 
 
-def _get_deployment(id: str, token: str):
-    url_tmp = url_template_get + id
-    headers = {
-        'Authorization': "Bearer " + token,
-        'Content-Type': "application/json",
-    }
-    print(url_tmp)
-    response = requests.request("GET", url_tmp, headers=headers)
-    return {}
+def _get_deployment(id: str, email: str):
+    deployment = models.Deployment.objects.filter(id=id, email=email).first()
+    if not deployment:
+        return {}
+    return deployment.target
 
 
 def _create_content(data: dict, token: str):

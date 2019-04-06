@@ -206,7 +206,8 @@ def create(image: str, token: str, email: str):
 
 
 def retrieve(token: str, email=None, pk=None):
-    result = _get_deployment(pk, token)
+    result = _get_deployment(pk, email)
+    result = yaml.load(result)
     return {"content": result}
 
 
