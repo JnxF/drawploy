@@ -258,9 +258,9 @@ def update(content: str, token: str, email: str, pk=id):
 
 def _list(token: str, email: str):
     deployments = models.Deployment.objects.filter(email=email)
-    results = dict()
+    results = list()
     for deployment in deployments:
-        results[deployment.id] = deployment.name
+        list.append(results, {"id": deployment.id, "name": deployment.name})
     return {"content": results}
 
 
