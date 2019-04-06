@@ -1,0 +1,18 @@
+<ng-container *ngIf="deployment == null">
+  <button mat-flat-button class="initial mat-elevation-z2" color="primary" (click)="fileInput.click()">
+    <span><mat-icon>add_a_photo</mat-icon> Upload drawing</span>
+  </button>
+  <input type="file" name="image" accept="image/*" (change)="onFileChange($event)" hidden #fileInput>
+</ng-container>
+<mat-card *ngIf="deployment != null">
+  <mat-card-header>
+    <label mat-card-title for="code">Code:</label>
+  </mat-card-header>
+  <mat-form-field appearance="outline">
+    <textarea matInput [value]="deployment" id="code" cdkTextareaAutosize [cdkAutosizeMinRows]="15"></textarea>
+  </mat-form-field>
+  <button mat-flat-button color="primary">
+    <mat-icon>cloud_upload</mat-icon>
+    Drawploy!
+  </button>
+</mat-card>

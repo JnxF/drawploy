@@ -1,4 +1,7 @@
-<button mat-flat-button class="mat-elevation-z2" color="primary" (click)="fileInput.click()">
-  <span><mat-icon>add_a_photo</mat-icon> Upload drawing</span>
-</button>
-<input type="file" name="image" accept="image/*" (change)="onFileChange($event)" hidden #fileInput>
+<mat-grid-list cols="6">
+  <mat-grid-tile [colspan]="6">
+    <a mat-flat-button [routerLink]="['/deploy-edition']">
+      <mat-icon>add</mat-icon> New deployment
+    </a>
+  </mat-grid-tile>
+</mat-grid-list>

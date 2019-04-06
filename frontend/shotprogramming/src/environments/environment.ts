@@ -4,7 +4,7 @@
 
 export const environment = {
   production: false,
-  apiUrl: 'https://drawploy.com/api/v1.0/'
+  apiUrl: 'http://localhost:8000/api/v1.0/'
 };
 
 /*

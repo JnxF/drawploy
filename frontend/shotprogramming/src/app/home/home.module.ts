@@ -1,15 +1,29 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { DeployEditionComponent } from './deploy-edition/deploy-edition.component';
+import {
+  MatButtonModule,
+  MatCardModule,
+  MatFormFieldModule, MatGridListModule,
+  MatIconModule,
+  MatInputModule,
+  MatSnackBarModule
+} from "@angular/material";
 import { HomeComponent } from './home/home.component';
-import {MatButtonModule, MatIconModule, MatSnackBarModule} from "@angular/material";
+import {RouterModule} from "@angular/router";
 
 @NgModule({
-  declarations: [HomeComponent],
+  declarations: [DeployEditionComponent, HomeComponent],
   imports: [
     CommonModule,
+    RouterModule,
     MatButtonModule,
     MatSnackBarModule,
-    MatIconModule
+    MatIconModule,
+    MatCardModule,
+    MatInputModule,
+    MatFormFieldModule,
+    MatGridListModule
   ]
 })
 export class HomeModule { }
