@@ -2,6 +2,11 @@ export interface Deployment {
   resources: Resource<DeploymentProperties>[];
 }
 
+export interface DeploymentShort {
+  name: string;
+  id: string;
+}
+
 export interface Resource<T extends DeploymentProperties> {
   type: string;
   name: string;
