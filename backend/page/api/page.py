@@ -248,7 +248,7 @@ def retrieve(token: str, email=None, pk=None):
     if not deployment:
         return {"content": dict()}
     result = json.loads(deployment.target)
-    result["content"]["id"] = pk
+    result["id"] = pk
     return {"content": result}
 
 
