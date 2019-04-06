@@ -19,6 +19,27 @@ from page.api.providers.google import _deploy, _create_content, _get_list, _get_
 from page.enums import google_resource_type, resource_names, google_property_type
 import uuid
 
+from machine import Square
+import operator
+
+def find_type(label: str):
+    values = {
+        "vm": 0,
+        "bd": 1
+    }
+
+    centers = ["asia-east1", "asia-east2", "asia-northeast1", "asia-south1", "asia-southeast1", "australia-southeast1", "europe-north1", "europe-west1", "europe-west2", "europe-west3", "europe-west4", "europe-west6", "northamerica-northeast1", "southamerica-east1", "us-central1", "us-east1", "us-east4", "us-west1", "us-west2"]
+
+    for c in centers:
+        values[c] = c
+
+    label = label.lower()
+
+    keys = list(values.keys())
+    keys = sorted(keys, key = lambda x : SequenceMatcher(None, x, label).ratio(), reverse = True)
+    best_one = keys[0]
+    return values[best_one]
+
 
 def get_text(image: str):
     headers = {
@@ -36,19 +57,35 @@ def get_text(image: str):
             r = requests.get(res.headers['Operation-Location'], headers=headers)
             d = json.loads(r.content)
         network = {}
+        squares = []
         for l in d['recognitionResult']['lines']:
             i = uuid.uuid4()
-            t = 0
-            if l['text'] == 'NET' or l['text'] == 'NET 1':
-                t = 2
-            elif( l['text'] == 'VM' or l['text'] == 'VH'):
-                t = 1
+            t = find_type(l['text'])
+            s = Square(str(i), t, l['boundingBox'])
+            squares.append(s)
 
-            network[i] = {
-                    'type': t,
-                    'linked':[]
+        groups = []
+        ant = None
+        g = []
+        squares.sort()
+        for s in squares:
+            if(ant is None or Square.solapaX(ant,s)):
+                g.append(s)
+            else:
+                if(len(g)>0):
+                    groups.append(g)
+                g = []
+            ant = s
+        
+
+        network = {}
+        for r in groups:
+            for sr in r:
+                related = [x.i for x in r if x.i != sr.i]
+                network[sr.i] = {
+                        'type': sr.tipo,
+                        'linked': list(related)
                     }
-
         return network
     
     #VERY BAD
