@@ -140,8 +140,8 @@ def create(image: str):
     #         - property 2
     #         - ...
     
-    ocr_result = get_text(image)
-    shapes = detectDraw(image)
+    # ocr_result = get_text(image)
+    # shapes = detectDraw(image)
     infrastructure = []
 
     infrastructure_example = {
