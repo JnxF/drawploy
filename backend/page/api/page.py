@@ -238,14 +238,14 @@ def create(image: str, token: str, email: str):
     result = _create_content(infrastructure_yaml, token)
     result["code"] = infrastructure_json
     if result["status"] == "RUNNING":
-        deployment = models.Deployment(id=result["targetId"], name=result["targetName"], email=email, target=result["targetTarget"])
+        deployment = models.Deployment(id=result["targetId"], name=result["targetName"], email=email, target=str(infrastructure_json))
         deployment.save()
     return {"content": result}
 
 
 def retrieve(token: str, email=None, pk=None):
     result = _get_deployment(pk, email)
-    result = yaml.load(result)
+    result = json.loads(result)
     return {"content": result}
 
 
