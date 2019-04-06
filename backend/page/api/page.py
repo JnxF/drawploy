@@ -248,7 +248,7 @@ def retrieve(token: str, email=None, pk=None):
     if not deployment:
         return {"content": dict(), "id": int(pk), "email": email}
     # result = json.loads(deployment.target)
-    return {"content": deployment, "id": int(pk), "email": email, "a": deployment.first().target}
+    return {"content": str(deployment), "id": int(pk), "email": email, "a": deployment.first().target}
 
 
 def update(content: str, token: str, email: str, pk=id):
