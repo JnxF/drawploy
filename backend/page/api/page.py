@@ -1,5 +1,6 @@
 import uuid
 from collections import OrderedDict
+from difflib import SequenceMatcher
 
 import yaml
 import requests, json, os
@@ -19,7 +20,7 @@ from page.api.providers.google import _deploy, _create_content, _get_list, _get_
 from page.enums import google_resource_type, resource_names, google_property_type
 import uuid
 
-from machine import Square
+from .machine import Square
 import operator
 
 def find_type(label: str):
@@ -243,7 +244,8 @@ def create(image: str, token: str, email: str):
 
 
 def retrieve(token: str, email=None, pk=None):
-    result = _get_deployment(pk, token)
+    result = _get_deployment(pk, email)
+    result = yaml.load(result)
     return {"content": result}
 
 
