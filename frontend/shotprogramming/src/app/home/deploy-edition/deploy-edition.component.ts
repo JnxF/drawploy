@@ -12,6 +12,7 @@ import {Deployment} from "../../model/deployment";
 })
 export class DeployEditionComponent {
   public deployment: Deployment = null;
+  public loading = false;
 
   public get deploymentStr(): string {
     return JSON.stringify(this.deployment, null, 2);
@@ -20,7 +21,9 @@ export class DeployEditionComponent {
   constructor(private _matSnackbar: MatSnackBar, private _api: ApiService, private _error: ErrorToStringService,
               private _route: ActivatedRoute) {
     if (this._route.snapshot.fragment) {
+      this.loading = true;
       // TODO: get the deployment with id this._route.snapshot.fragment into deployment
+      setTimeout(() => this.loading = false, 1000);
     }
   }
 

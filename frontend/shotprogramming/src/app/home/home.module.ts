@@ -6,7 +6,7 @@ import {
   MatCardModule,
   MatFormFieldModule, MatGridListModule,
   MatIconModule,
-  MatInputModule,
+  MatInputModule, MatProgressSpinnerModule,
   MatSnackBarModule
 } from "@angular/material";
 import { HomeComponent } from './home/home.component';
@@ -19,6 +19,7 @@ import {RouterModule} from "@angular/router";
     RouterModule,
     MatButtonModule,
     MatSnackBarModule,
+    MatProgressSpinnerModule,
     MatIconModule,
     MatCardModule,
     MatInputModule,
