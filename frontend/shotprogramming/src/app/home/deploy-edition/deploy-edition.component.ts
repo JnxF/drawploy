@@ -1,4 +1,4 @@
-import {Component, OnInit} from '@angular/core';
+import {Component} from '@angular/core';
 import {MatSnackBar} from "@angular/material";
 import {ApiService} from "../../api/api.service";
 import {ActivatedRoute} from "@angular/router";
@@ -13,6 +13,7 @@ import {Deployment} from "../../model/deployment";
 export class DeployEditionComponent {
   public deployment: Deployment = null;
   public loading = false;
+  public editedDeploy = false;
 
   public get deploymentStr(): string {
     return JSON.stringify(this.deployment, null, 2);
@@ -22,8 +23,13 @@ export class DeployEditionComponent {
               private _route: ActivatedRoute) {
     if (this._route.snapshot.fragment) {
       this.loading = true;
-      // TODO: get the deployment with id this._route.snapshot.fragment into deployment
-      setTimeout(() => this.loading = false, 1000);
+      this._api.get<Deployment>(
+        `page/${this._route.snapshot.fragment}`
+      ).subscribe(deployment => {
+        this.deployment = deployment;
+        this.editedDeploy = false;
+        this.loading = false;
+      }, err => this._displayError(this._error.errorToString(err)));
     }
   }
 
@@ -38,12 +44,22 @@ export class DeployEditionComponent {
       this._fileTo64Base(picture).then(base64 => {
         this._api.post('page/', {
           image: base64
-        }).subscribe((obj: any) => this.deployment = obj.content,
-            err => this._displayError(this._error.errorToString(err)));
+        }).subscribe((obj: any) => {
+            this.deployment = obj.content;
+            this.editedDeploy = false;
+          },
+          err => this._displayError(this._error.errorToString(err)));
       });
     } else {
       this._displayError('Only images allowed.');
     }
+  }
+
+  public deploy() {
+  }
+
+  public save() {
+    this.editedDeploy = false;
   }
 
   private _fileTo64Base(file: File): Promise<string> {
@@ -54,7 +70,7 @@ export class DeployEditionComponent {
         let str = e.target.result;
         const commaIdx = str.indexOf(',');
         if (commaIdx >= 0) {
-          str = str.substring(commaIdx+1);
+          str = str.substring(commaIdx + 1);
         }
         resolve(str);
       };

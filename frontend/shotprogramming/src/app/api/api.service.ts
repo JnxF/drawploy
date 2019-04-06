@@ -27,11 +27,17 @@ export class ApiService {
     return new URL(url, this._sApiUrl).toString();
   }
 
-  public get<T>(relativeUrl: string): Observable<T[]> {
-    return this._http.get(ApiService.sCompleteUrl(relativeUrl), {observe: 'body'}) as Observable<T[]>;
+  public get<T>(relativeUrl: string, instantiateClass?: Type<T>): Observable<T> {
+    const myPipe = this._http.get(ApiService.sCompleteUrl(relativeUrl), {observe: 'body'});
+    if (instantiateClass) {
+      myPipe.pipe(
+        map(obj => new instantiateClass(obj))
+      );
+    }
+    return myPipe as Observable<T>;
   }
 
-  public post<P, R>(relativeUrl: string, object: any, instantiateClass?: Type<R>): Observable<R>|Observable<P> {
+  public post<P, R>(relativeUrl: string, object: any, instantiateClass?: Type<R>): Observable<R> | Observable<P> {
     const myPipe = this._http.post(ApiService.sCompleteUrl(relativeUrl), object, {
       observe: 'body'
     });
