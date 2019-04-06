@@ -7,3 +7,8 @@ class PageBasicSerializer(s.Serializer):
 
 class PageCreateSerializer(s.Serializer):
     image = s.CharField()
+
+
+class PageContentSerializer(s.Serializer):
+    content = s.CharField()
+
