@@ -3,6 +3,7 @@ import {MatSnackBar} from "@angular/material";
 import {ApiService} from "../../api/api.service";
 import {ActivatedRoute} from "@angular/router";
 import {ErrorToStringService} from "../../api/error-to-string.service";
+import {Deployment} from "../../model/deployment";
 
 @Component({
   selector: 'app-home',
@@ -10,7 +11,11 @@ import {ErrorToStringService} from "../../api/error-to-string.service";
   styleUrls: ['./deploy-edition.component.scss']
 })
 export class DeployEditionComponent {
-  public deployment: string = null;
+  public deployment: Deployment = null;
+
+  public get deploymentStr(): string {
+    return JSON.stringify(this.deployment, null, 2);
+  }
 
   constructor(private _matSnackbar: MatSnackBar, private _api: ApiService, private _error: ErrorToStringService,
               private _route: ActivatedRoute) {
@@ -43,7 +48,12 @@ export class DeployEditionComponent {
       const reader = new FileReader();
       // Closure to capture the file information.
       reader.onloadend = (e: any) => {
-        resolve(e.target.result);
+        let str = e.target.result;
+        const commaIdx = str.indexOf(',');
+        if (commaIdx >= 0) {
+          str = str.substring(commaIdx+1);
+        }
+        resolve(str);
       };
       reader.readAsDataURL(file);
     });

@@ -10,6 +10,16 @@ import {map} from "rxjs/operators";
 export class ApiService {
   private static readonly _sApiUrl = environment.apiUrl;
 
+  public googleUser: any;
+
+  public get userEmail(): string {
+    return this.googleUser.getBasicProfile().getEmail();
+  }
+
+  public get userToken(): string {
+    return this.googleUser.getAuthResponse().id_token;
+  }
+
   constructor(private _http: HttpClient) {
   }
 
