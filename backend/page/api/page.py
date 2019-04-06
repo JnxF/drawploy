@@ -14,7 +14,8 @@ from imutils.perspective import four_point_transform
 from skimage.filters import threshold_local
 
 from backend.settings import AZURE_KEY
-from page.api.providers.google import _deploy, _create_content, _get_list
+from page import models
+from page.api.providers.google import _deploy, _create_content, _get_list, _get_deployment
 from page.enums import google_resource_type, resource_names, google_property_type
 import uuid
 
@@ -214,7 +215,7 @@ def detectDraw(base64request: str):
     return result
 
 
-def create(image: str, token: str):
+def create(image: str, token: str, email: str):
     infrastructure = get_text(image)
     # infrastructure = detectDraw(image)
     infrastructure_2 = {
@@ -235,38 +236,29 @@ def create(image: str, token: str):
     infrastructure_yaml = infrastructure_to_yaml(infrastructure_json)
     result = _create_content(infrastructure_yaml, token)
     result["code"] = infrastructure_json
+    if result["status"] == "RUNNING":
+        deployment = models.Deployment(id=result["targetId"], name=result["targetName"], email=email, target=result["targetTarget"])
+        deployment.save()
     return {"content": result}
 
 
-def retrieve(token: str, pk=id):
-    infrastructure_example = {
-        "81b98e47-6eea-43f8-a34c-70354464d160": {
-            "type": 0,
-            "linked": ["c9f83a36-b35e-4808-8479-ff6876fc8df2", "37315dae-34af-4877-8344-a759c34e68b3"]
-        },
-        "c9f83a36-b35e-4808-8479-ff6876fc8df2": {
-            "type": 1,
-            "linked": []
-        },
-        "37315dae-34af-4877-8344-a759c34e68b3": {
-            "type": 2,
-            "linked": []
-        }
-    }
-    infrastructure_json = infrastructure_to_json(infrastructure_example, google_resource_type, google_property_type, "us-central1-f")
-    return {"content": infrastructure_json}
+def retrieve(token: str, email=None, pk=None):
+    result = _get_deployment(pk, token)
+    return {"content": result}
 
 
-def update(content: str, token, pk=id):
+def update(content: str, token: str, email: str, pk=id):
     return {"status": 0}
 
 
-def _list(token: str):
+def _list(token: str, email: str):
     result = _get_list(token)
-    return {"content": result["deployments"]}
+    if "deployments" in result:
+        return {"content": result["deployments"]}
+    return {"content": []}
 
 
-def deploy(token: str, pk: str):
+def deploy(token: str, email: str, pk: str):
     content = dict() #_get_content(pk, token)
     result = _deploy(content, token)
     return {"status": result}

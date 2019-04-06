@@ -14,15 +14,14 @@ export class HomeComponent implements OnInit {
   constructor(private _api: ApiService, private _router: Router) {
   }
 
-  edit(deploymentId: string) {
-    this._router.navigate(['deploy-edition'], {fragment: deploymentId}).then();
+  edit(fragment: string) {
+    this._router.navigate(['deploy-edition'], {fragment: fragment}).then();
   }
 
   ngOnInit() {
-    this._api.get<{content: any}>('page/').subscribe((response: {content: any}) => {
+    this._api.get<{ content: any }>('page/').subscribe((response: { content: DeploymentShort[] }) => {
       if (response.content) {
-        Object.entries<string>(response.content).forEach(([id, name]) =>
-        this.deployments.push({name: name, id: id}));
+        this.deployments = response.content;
       }
     });
   }

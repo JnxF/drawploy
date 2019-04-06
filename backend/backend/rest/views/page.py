@@ -15,22 +15,22 @@ class PageAPI(ViewSet):
     def create(self, request):
         serializer = PageCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        page = create(**serializer.validated_data, token=request.GET.get('token'))
+        page = create(**serializer.validated_data, token=request.GET.get('token'), email=request.GET.get('email'))
         return Response(page)
 
     def retrieve(self, request, pk):
-        page = retrieve(request.GET.get('token'), pk=pk)
+        page = retrieve(request.GET.get('token'), email=request.GET.get('email'), pk=pk)
         return Response(page)
 
     def update(self, request, pk):
-        page = update(request.GET.get('content'), request.GET.get('token'), pk)
+        page = update(request.GET.get('content'), request.GET.get('token'), request.GET.get('email'), pk)
         return Response(page)
 
     def list(self, request):
-        page = _list(request.GET.get('token'))
+        page = _list(request.GET.get('token'), request.GET.get('email'))
         return Response(page)
 
     @action(detail=True, methods=['post'])
     def deploy(self, request, pk):
-        page = deploy(request.GET.get('token'), pk=pk)
+        page = deploy(request.GET.get('token'), email=request.GET.get('email'), pk=pk)
         return Response(page)

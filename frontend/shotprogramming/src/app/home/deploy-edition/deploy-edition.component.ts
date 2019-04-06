@@ -1,5 +1,5 @@
-import {Component} from '@angular/core';
-import {MatSnackBar} from "@angular/material";
+import {Component, ViewChild} from '@angular/core';
+import {MatInput, MatSnackBar} from "@angular/material";
 import {ApiService} from "../../api/api.service";
 import {ActivatedRoute} from "@angular/router";
 import {ErrorToStringService} from "../../api/error-to-string.service";
@@ -15,8 +15,10 @@ export class DeployEditionComponent {
   public loading = false;
   public editedDeploy = false;
 
+  @ViewChild(MatInput) private _input: MatInput;
+
   public get deploymentStr(): string {
-    return JSON.stringify(this.deployment, null, 2);
+    return JSON.stringify(this.deployment.code, null, 2);
   }
 
   constructor(private _matSnackbar: MatSnackBar, private _api: ApiService, private _error: ErrorToStringService,
@@ -56,10 +58,23 @@ export class DeployEditionComponent {
   }
 
   public deploy() {
+    if (this._input && this.deployment) {
+      this._api.post(`page/${this.deployment.id}/deploy`, {})
+        .subscribe(() => {
+          this._matSnackbar.open('Deployed!', 'Ok', {duration: 5000});
+        }, err => this._displayError(this._error.errorToString(err)));
+    }
   }
 
   public save() {
-    this.editedDeploy = false;
+    if (this._input && this.deployment) {
+      const newDeploy = JSON.parse(this._input.value);
+      this._api.post(`page/${this.deployment.id}`, {content: newDeploy})
+        .subscribe((obj: any) => {
+          this.deployment = obj.content;
+          this.editedDeploy = false;
+        });
+    }
   }
 
   private _fileTo64Base(file: File): Promise<string> {
