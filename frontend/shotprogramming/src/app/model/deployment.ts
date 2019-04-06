@@ -1,5 +1,6 @@
 export interface Deployment {
-  resources: Resource<DeploymentProperties>[];
+  id: string;
+  code: { resources: Resource<DeploymentProperties>[]; }
 }
 
 export interface DeploymentShort {
