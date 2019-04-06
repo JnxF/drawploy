@@ -15,21 +15,19 @@ class PageAPI(ViewSet):
     def create(self, request):
         serializer = PageCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        page = create(**serializer.validated_data)
-        # serializer = self.serializer_class(page, many=True)
-        # return Response(serializer.data)
+        page = create(**serializer.validated_data, token=request.GET.get('token'))
         return Response(page)
 
-    def retrieve(self, _, pk):
-        page = retrieve(pk)
+    def retrieve(self, request, pk):
+        page = retrieve(request.GET.get('token'), pk=pk)
         return Response(page)
 
     def update(self, request, pk):
         serializer = PageContentSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        page = update(**serializer.validated_data, pk=pk)
+        page = update(**serializer.validated_data, token=request.GET.get('token'), pk=pk)
         return Response(page)
 
-    def list(self, _):
-        page = _list()
+    def list(self, request):
+        page = _list(request.GET.get('token'))
         return Response(page)
