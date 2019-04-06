@@ -8,6 +8,7 @@ from urllib3.connectionpool import xrange
 from backend.settings import GOOGLE_PROJECT
 
 url_template = "https://www.googleapis.com/deploymentmanager/v2/projects/" + GOOGLE_PROJECT + "/global/deployments"
+url_template_list = "https://www.googleapis.com/deploymentmanager/v2beta1/projects/" + GOOGLE_PROJECT + "/global/deployments"
 
 
 def _deploy(data: dict, token: str):
@@ -21,8 +22,13 @@ def _deploy(data: dict, token: str):
     return {"state": 0}
 
 
-def _get_content(id: str, token: str):
-    return {}
+def _get_list(token: str):
+    headers = {
+        'Authorization': "Bearer " + token,
+        'Content-Type': "application/json",
+    }
+    response = requests.request("GET", url_template, headers=headers)
+    return json.loads(response.text)
 
 
 def _create_content(data: dict, token: str):

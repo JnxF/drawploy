@@ -14,7 +14,7 @@ from imutils.perspective import four_point_transform
 from skimage.filters import threshold_local
 
 from backend.settings import AZURE_KEY
-from page.api.providers.google import _deploy, _get_content, _create_content
+from page.api.providers.google import _deploy, _create_content, _get_list
 from page.enums import google_resource_type, resource_names, google_property_type
 import uuid
 
@@ -225,16 +225,12 @@ def update(content: str, token, pk=id):
 
 
 def _list(token: str):
-    return {
-        "content": {
-            "id1": "nom1",
-            "id2": "nom2"
-        }
-    }
+    result = _get_list(token)
+    return {"content": result["deployments"]}
 
 
 def deploy(token: str, pk: str):
-    content = _get_content(pk, token)
+    content = dict() #_get_content(pk, token)
     result = _deploy(content, token)
     return {"status": result}
 
