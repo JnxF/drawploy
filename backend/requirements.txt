@@ -34,3 +34,6 @@ opencv-python
 imutils
 scikit-image
 scipy
+reverse==0.1.0
+gunicorn==19.6.0
+names

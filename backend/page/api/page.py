@@ -161,11 +161,11 @@ def create(image: str):
             "properties": {}
         }
     }
-    infrastructure_yaml = infrastructure_to_yaml(infrastructure_example, google_resource_type, google_property_type, "us-central1-f")
-    return {"content": infrastructure_yaml}
+    infrastructure_json = infrastructure_to_json(infrastructure_example, google_resource_type, google_property_type, "us-central1-f")
+    return {"content": infrastructure_json}
 
 
-def infrastructure_to_yaml(infrastructure: dict, translate_resource: list, translate_type: list, zone: str):
+def infrastructure_to_json(infrastructure: dict, translate_resource: list, translate_type: list, zone: str):
     infrastructure_aux = OrderedDict()
     infrastructure_aux["resources"] = []
     i = 0
@@ -180,9 +180,11 @@ def infrastructure_to_yaml(infrastructure: dict, translate_resource: list, trans
         list.append(infrastructure_aux["resources"], element_translated)
         i += 1
     yaml.add_representer(OrderedDict, represent_ordereddict)
-    infrastructure_yaml = yaml.dump(infrastructure_aux, allow_unicode=True)
-    print(infrastructure_yaml)
-    return infrastructure_yaml
+    return infrastructure_aux
+
+
+def infrastructure_to_yaml(infrastructure: dict):
+    return yaml.dump(infrastructure, allow_unicode=True)
 
 
 def represent_ordereddict(dumper, data):
