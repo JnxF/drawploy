@@ -5,7 +5,7 @@ import requests, json, os
 
 from page.enums import google_resource_type, resource_names, google_property_type
 
-def getText(image: str):
+def get_text(image: str):
     headers = {
         'Content-Type': "application/octet-stream",
         'Ocp-Apim-Subscription-Key': os.environ['AZURE_KEY'],
@@ -37,7 +37,7 @@ def create(image: str):
     #         - property 2
     #         - ...
     
-    
+    ocr_result = get_text(image)
     infrastructure = []
 
     infrastructure_example = {
