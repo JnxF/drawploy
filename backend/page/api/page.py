@@ -18,17 +18,17 @@ from page.api.providers.google import _deploy, _get_content, _create_content
 from page.enums import google_resource_type, resource_names, google_property_type
 import uuid
 
+
 def get_text(image: str):
     headers = {
         'Content-Type': "application/octet-stream",
-        'Ocp-Apim-Subscription-Key': AZURE_KEY,
+        'Ocp-Apim-Subscription-Key': "928d25e00c4b453e8db0b334d8bfc6fc",
     }
     url = "https://australiaeast.api.cognitive.microsoft.com/vision/v2.0/recognizeText?mode=Handwritten"
 
     res = requests.post(url=url,
                         headers=headers,
                         data=image)
-
     if res.status_code == 202:
         d = {'status': 'Running'}
         while(d['status'] == 'Running'):
@@ -51,7 +51,7 @@ def get_text(image: str):
         return network
     
     #VERY BAD
-    return None
+    return dict()
 
 
 def detectDraw(base64request: str):
@@ -178,9 +178,9 @@ def detectDraw(base64request: str):
 
 
 def create(image: str, token: str):
-    infrastructure = get_text(image)
-    #infrastructure = detectDraw(image)
-    infrastructure_2 = {
+    # infrastructure = get_text(image)
+    # infrastructure = detectDraw(image)
+    infrastructure = {
         "81b98e47-6eea-43f8-a34c-70354464d160": {
             "type": 0,
             "linked": ["c9f83a36-b35e-4808-8479-ff6876fc8df2", "37315dae-34af-4877-8344-a759c34e68b3"]
@@ -194,6 +194,7 @@ def create(image: str, token: str):
             "linked": []
         }
     }
+    print(infrastructure)
     infrastructure_json = infrastructure_to_json(infrastructure, google_resource_type, google_property_type, "us-central1-f")
     infrastructure_yaml = infrastructure_to_yaml(infrastructure_json)
     result = _create_content(infrastructure_yaml, token)

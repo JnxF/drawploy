@@ -1,6 +1,9 @@
-import uuid
+import json
+import random
+import string
 
 import requests
+from urllib3.connectionpool import xrange
 
 from backend.settings import GOOGLE_PROJECT
 
@@ -24,7 +27,7 @@ def _get_content(id: str, token: str):
 
 def _create_content(data: dict, token: str):
     payload = {
-        "name": "example-config-with-templates-2",
+        "name": ''.join([random.choice(string.ascii_letters + string.digits) for n in xrange(26)]).lower(),
         "target": {
             "config": {
                 "content": data
@@ -32,10 +35,9 @@ def _create_content(data: dict, token: str):
         }
     }
     payload = str(payload)
-    print(payload)
     headers = {
         'Authorization': "Bearer " + token,
         'Content-Type': "application/json",
     }
     response = requests.request("POST", url_template, data=payload, headers=headers)
-    return response.text
+    return json.loads(response.text)
