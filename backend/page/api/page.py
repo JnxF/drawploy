@@ -315,8 +315,8 @@ def status(token: str, operation_name: str, email: str, pk: str):
     return {"content": result}
 
 
-def metrics(token: str, email: str, pk: str):
-    result = _get_metrics(token, "metric.type%3Dcompute.googleapis.com/instance/cpu/utilization", "metric.label.instance_name%3Dvm-0")
+def metrics(token: str, email: str, pk: str, zone: str):
+    result = _get_metrics(token, zone)
     return {"content": result}
 
 
