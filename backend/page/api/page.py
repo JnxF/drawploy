@@ -100,7 +100,7 @@ def get_text(image: str):
         return network, foundCenter
     
     #VERY BAD
-    return dict()
+    return dict(), None
 
 
 def detectDraw(base64request: str):
