@@ -25,10 +25,10 @@ export class DeployEditionComponent {
               private _route: ActivatedRoute) {
     if (this._route.snapshot.fragment) {
       this.loading = true;
-      this._api.get<Deployment>(
-        `page/${this._route.snapshot.fragment}`
+      this._api.get<any>(
+        `page/${this._route.snapshot.fragment}/`
       ).subscribe(deployment => {
-        this.deployment = deployment;
+        this.deployment = {id: deployment.content.id, code: deployment.content.code};
         this.editedDeploy = false;
         this.loading = false;
       }, err => this._displayError(this._error.errorToString(err)));
@@ -47,7 +47,7 @@ export class DeployEditionComponent {
         this._api.post('page/', {
           image: base64
         }).subscribe((obj: any) => {
-            this.deployment = obj.content;
+            this.deployment = {id: obj.content.targetId, code: obj.content.code};
             this.editedDeploy = false;
           },
           err => this._displayError(this._error.errorToString(err)));
