@@ -332,8 +332,8 @@ def infrastructure_to_json(infrastructure: dict, translate_resource: list, trans
                     if infrastructure[element_nested]["type"] == 1:
                         element_current["deviceName"] = "name"
                         element_current["type"] = "PERSISTENT"
-                        element_current["boot"] = "true"
-                        element_current["autoDelete"] = "true"
+                        element_current["boot"] = True
+                        element_current["autoDelete"] = True
                         list.append(element_translated["properties"][translate_type[infrastructure[element_nested]["type"]]], element_current)
                     elif infrastructure[element_nested]["type"] == 2:
                         element_current["network"] = "https://www.googleapis.com/compute/v1/projects/" + GOOGLE_PROJECT + "/global/networks/default"
