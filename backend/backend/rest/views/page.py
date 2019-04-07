@@ -5,7 +5,7 @@ from rest_framework.viewsets import ViewSet
 from rest_framework.response import Response
 
 from backend.rest.serializers.page import PageBasicSerializer, PageCreateSerializer, PageContentSerializer
-from page.api.page import create, retrieve, update, _list, deploy
+from page.api.page import create, retrieve, update, _list, status
 
 
 class PageAPI(ViewSet):
@@ -30,7 +30,7 @@ class PageAPI(ViewSet):
         page = _list(request.GET.get('token'), request.GET.get('email'))
         return Response(page)
 
-    @action(detail=True, methods=['post'])
-    def deploy(self, request, pk):
-        page = deploy(request.GET.get('token'), email=request.GET.get('email'), pk=pk)
+    @action(detail=True, methods=['get'])
+    def status(self, request, pk):
+        page = status(request.GET.get('token'), operation_name=request.GET.get('operationName'), email=request.GET.get('email'), pk=pk)
         return Response(page)
