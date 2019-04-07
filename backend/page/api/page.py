@@ -36,6 +36,7 @@ def find_type(label: str):
         "vm": 0,
         "net": 2,
         "dk": 1,
+        "db": 3,
     }
 
     label = label.lower()
@@ -78,7 +79,8 @@ def get_text(image: str):
         elements = {
             0: [],
             1: [],
-            2: []
+            2: [],
+            3: []
         }
         elements_copy = {}
         for l in d['recognitionResult']['lines']:
@@ -99,11 +101,13 @@ def get_text(image: str):
             for item in element:
                 cntr1 = compute_centre(item['boundingBox'])
                 if( key == 0 ):
-                    for key2 in [1,2]:
+                    for key2 in [1,2,3]:
                         for element3 in elements[key2]:
                             cntr2 = compute_centre(element3['boundingBox'])
                             dis = compute_distance(cntr1, cntr2)
                             if( dis < 450 and key2 == 2):
+                                elements_copy[item['id']]['linked'].append(element3['id'])
+                            if( dis < 600 and key2 == 3):
                                 elements_copy[item['id']]['linked'].append(element3['id'])
                 if(key == 1):
                     for key2 in [0]:
@@ -134,7 +138,6 @@ def get_text(image: str):
         return elements_copy, foundCenter
     #VERY BAD
     return dict(), None
-
 
 def detectDraw(base64request: str):
 
