@@ -23,12 +23,14 @@ import uuid
 from .machine import Square
 import operator
 
+
+
 def find_type(label: str):
     values = {
         "vm": 0,
         "net": 2,
-        "bd": 1,
-
+        "d": 1,
+        '-': 3
     }
 
     label = label.lower()
@@ -36,7 +38,11 @@ def find_type(label: str):
     keys = list(values.keys())
     keys = sorted(keys, key = lambda x : SequenceMatcher(None, x, label).ratio(), reverse = True)
     best_one = keys[0]
-    return values[best_one]
+    result = values[best_one]
+    if(result == '-'):
+        return None
+    else:
+        return result
 
 
 def get_text(image: str):
@@ -54,13 +60,19 @@ def get_text(image: str):
         while(d['status'] == 'Running'):
             r = requests.get(res.headers['Operation-Location'], headers=headers)
             d = json.loads(r.content)
+            print(d)
         network = {}
         squares = []
         for l in d['recognitionResult']['lines']:
-            i = uuid.uuid4()
-            t = find_type(l['text'])
-            s = Square(str(i), t, l['boundingBox'])
-            squares.append(s)
+            for w in l['words']:
+                i = uuid.uuid4()
+                t = find_type(w['text'])
+                if(t):
+                    s = Square(str(i), t, w['boundingBox'])
+                    if(t == 1):
+                        squares[-1].set_disk(str(i))
+                    squares.append(s)
+
 
         groups = []
         ant = None
@@ -74,16 +86,27 @@ def get_text(image: str):
                     groups.append(g)
                 g = []
             ant = s
-        
+        if(len(g)>0):
+            groups.append(g)
 
         network = {}
         for r in groups:
             for sr in r:
-                related = [x.i for x in r if x.i != sr.i]
-                network[sr.i] = {
+                if(sr.tipo == 1):
+                    rela = []
+                    for w in r:
+                        if(sr.i == w.disk):
+                            rela.append(str(w.i))
+                    network[sr.i] = {
                         'type': sr.tipo,
-                        'linked': list(related)
+                        'linked': list(rela)
                     }
+                else:
+                    related = [x.i for x in r if x.i != sr.i]
+                    network[sr.i] = {
+                            'type': sr.tipo,
+                            'linked': list(related)
+                        }
         return network
     
     #VERY BAD
