@@ -284,8 +284,9 @@ def create(image: str, token: str, email: str):
     result = _create_content(infrastructure_yaml, token)
     result["code"] = infrastructure_json
     if result["status"] == "RUNNING":
-        deployment = models.Deployment(id=result["targetId"], name=result["targetName"], email=email, target=json.dumps(infrastructure_json))
+        deployment = models.Deployment(id=result["targetId"], name=result["targetName"], email=email, target=json.dumps(infrastructure_json), region=foundCenter)
         deployment.save()
+    result["region"] = foundCenter
     return {"content": result}
 
 
@@ -306,7 +307,10 @@ def update(content: str, token: str, email: str, pk=id):
 def _list(token: str, email: str):
     result = _get_list(token)
     if "deployments" in result:
-        return {"content": result["deployments"]}
+        result = result["deployments"]
+        for result_aux in result:
+            result_aux["region"] = models.Deployment.objects.filter(id=result_aux["id"]).first().region
+        return {"content": result}
     return {"content": []}
 
 
@@ -315,8 +319,8 @@ def status(token: str, operation_name: str, email: str, pk: str):
     return {"content": result}
 
 
-def metrics(token: str, email: str, pk: str):
-    result = _get_metrics(token, "metric.type%3Dcompute.googleapis.com/instance/cpu/utilization", "metric.label.instance_name%3Dvm-0")
+def metrics(token: str, email: str, pk: str, zone: str):
+    result = _get_metrics(token, zone)
     return {"content": result}
 
 
