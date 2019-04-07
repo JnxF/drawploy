@@ -16,15 +16,17 @@ from skimage.filters import threshold_local
 
 from backend.settings import AZURE_KEY, GOOGLE_PROJECT
 from page import models
-from page.api.providers.google import _deploy, _create_content, _get_list
+from page.api.providers.google import _deploy, _create_content, _get_list, _get_status, _get_metrics
 from page.enums import google_resource_type, resource_names, google_property_type
 import uuid
 
 from .machine import Square
 import operator
+import math
 
 def find_closest_google_center(center: str):
-    keys = ["asia-east1", "asia-east2", "asia-northeast1", "asia-south1", "asia-southeast1", "australia-southeast1", "europe-north1", "europe-west1", "europe-west2", "europe-west3", "europe-west4", "europe-west6", "northamerica-northeast1", "southamerica-east1", "us-central1", "us-east1", "us-east4", "us-west1", "us-west2"]
+    keys = ["asia-east1", "asia-east2", "asia-northeast1", "asia-south1", "asia-southeast1", "australia-southeast1", "europe-north1", "europe-west1", "europe-west2", "europe-west3", "europe-west4", "europe-west6", "northamerica-northeast1", "southamerica-east1", "us-central1", "us-east1", "us-east4", "us-west1", "us-west2", "eu-central", "eu-west2", "eu-west3",
+    "eu-west4", "eu-west6", "northamerica-northeast", "southameerica-east", "us-central"]
     center = center.lower()
     keys = sorted(keys, key = lambda x : SequenceMatcher(None, x, center).ratio(), reverse = True)
     return keys[0], SequenceMatcher(None, keys[0], center).ratio()
@@ -34,8 +36,8 @@ def find_type(label: str):
     values = {
         "vm": 0,
         "net": 2,
-        "d": 1,
-        '-': 3
+        "dk": 1,
+        "db": 3,
     }
 
     label = label.lower()
@@ -44,11 +46,16 @@ def find_type(label: str):
     keys = sorted(keys, key = lambda x : SequenceMatcher(None, x, label).ratio(), reverse = True)
     best_one = keys[0]
     result = values[best_one]
-    if(result == '-'):
-        return None
-    else:
-        return result
+    return result
 
+
+def compute_centre(bounding):
+    x = bounding[0] + (bounding[0] - bounding[3])/2
+    y = bounding[1] + (bounding[1] - bounding[7])/2
+    return x, y
+
+def compute_distance(obj1, obj2):
+    return math.sqrt(pow(obj2[0]-obj1[0], 2) + pow(obj2[1]-obj1[1], 2))
 
 def get_text(image: str):
     headers = {
@@ -69,59 +76,69 @@ def get_text(image: str):
         network = {}
         squares = []
         foundCenter = None
+
+        elements = {
+            0: [],
+            1: [],
+            2: [],
+            3: []
+        }
+        elements_copy = {}
         for l in d['recognitionResult']['lines']:
             for w in l['words']:
-                i = uuid.uuid4()
+                closest, probability = find_closest_google_center(l['text'])
+                if probability > 0.8:
+                    foundCenter = closest
+                    continue
                 t = find_type(w['text'])
-                if(t):
-                    s = Square(str(i), t, w['boundingBox'])
-                    if(t == 1):
-                        squares[-1].set_disk(str(i))
-                    closest, probability = find_closest_google_center(l['text'])
-                    if probability > 0.8:
-                        foundCenter = closest
-                        continue
-                    squares.append(s)
+                uid = str(uuid.uuid4())
+                w['id'] = uid
+                elements[t].append(w)
+                elements_copy[uid] = {
+                    'type': t,
+                    'linked': []
+                }
+        for key,element in elements.items():
+            for item in element:
+                cntr1 = compute_centre(item['boundingBox'])
+                if( key == 0 ):
+                    for key2 in [1,2,3]:
+                        for element3 in elements[key2]:
+                            cntr2 = compute_centre(element3['boundingBox'])
+                            dis = compute_distance(cntr1, cntr2)
+                            if( dis < 450 and key2 == 2):
+                                elements_copy[item['id']]['linked'].append(element3['id'])
+                            if( dis < 600 and key2 == 3):
+                                elements_copy[item['id']]['linked'].append(element3['id'])
+                if(key == 1):
+                    for key2 in [0]:
+                        prop = None
+                        prop2 = None
+                        dist = 10000
+                        dist2 = 10000
+                        for element3 in elements[key2]:
+                            cntr2 = compute_centre(element3['boundingBox'])
+                            dis = compute_distance(cntr1, cntr2)
+                            if( dis < 750 and key2 == 0 and (dis < dist or dis < dist2)):
+                                disk = False
+                                for d in elements_copy[element3['id']]['linked']:
+                                    disk = (elements_copy[d]['type'] == 1 or disk)
+                                if(not disk and dis<dist):
+                                    prop = element3['id']
+                                    dist = dis
+                                elif(dis < dist2):
+                                    prop2 = element3['id']
+                                    dist2 = dis
+            
+                        if(prop):
+                            elements_copy[prop]['linked'].append(item['id'])
+                        elif(prop2):
+                            elements_copy[prop2]['linked'].append(item['id'])
 
-
-        groups = []
-        ant = None
-        g = []
-        squares.sort()
-        for s in squares:
-            if(ant is None or Square.solapaX(ant,s)):
-                g.append(s)
-            else:
-                if(len(g)>0):
-                    groups.append(g)
-                g = []
-            ant = s
-        if(len(g)>0):
-            groups.append(g)
-
-        network = {}
-        for r in groups:
-            for sr in r:
-                if(sr.tipo == 1):
-                    rela = []
-                    for w in r:
-                        if(sr.i == w.disk):
-                            rela.append(str(w.i))
-                    network[sr.i] = {
-                        'type': sr.tipo,
-                        'linked': list(rela)
-                    }
-                else:
-                    related = [x.i for x in r if x.i != sr.i]
-                    network[sr.i] = {
-                            'type': sr.tipo,
-                            'linked': list(related)
-                        }
-        return network, foundCenter
-    
+                
+        return elements_copy, foundCenter
     #VERY BAD
-    return dict()
-
+    return dict(), None
 
 def detectDraw(base64request: str):
 
@@ -293,10 +310,14 @@ def _list(token: str, email: str):
     return {"content": []}
 
 
-def deploy(token: str, email: str, pk: str):
-    content = dict() #_get_content(pk, token)
-    result = _deploy(content, token)
-    return {"status": result}
+def status(token: str, operation_name: str, email: str, pk: str):
+    result = _get_status(token, operation_name)
+    return {"content": result}
+
+
+def metrics(token: str, email: str, pk: str):
+    result = _get_metrics(token, "metric.type%3Dcompute.googleapis.com/instance/cpu/utilization", "metric.label.instance_name%3Dvm-0")
+    return {"content": result}
 
 
 def infrastructure_to_json(infrastructure: dict, translate_resource: list, translate_type: list, zone: str):
@@ -312,19 +333,32 @@ def infrastructure_to_json(infrastructure: dict, translate_resource: list, trans
             element_translated["properties"]["zone"] = zone
             element_translated["properties"]["machineType"] = "https://www.googleapis.com/compute/v1/projects/" + GOOGLE_PROJECT + "/zones/us-central1-f/machineTypes/f1-micro"
             for element_nested in element["linked"]:
-                if element["type"] == 0 and (infrastructure[element_nested]["type"] == 1 or infrastructure[element_nested]["type"] == 2):
+                if element["type"] == 0 and (infrastructure[element_nested]["type"] in [1, 2]):
                     if translate_type[infrastructure[element_nested]["type"]] not in element_translated["properties"]:
                         element_translated["properties"][translate_type[infrastructure[element_nested]["type"]]] = []
                     element_current = OrderedDict()
                     if infrastructure[element_nested]["type"] == 1:
                         element_current["deviceName"] = "name"
                         element_current["type"] = "PERSISTENT"
-                        element_current["boot"] = "true"
-                        element_current["autoDelete"] = "true"
+                        element_current["boot"] = True
+                        element_current["autoDelete"] = True
+                        element_current["initializeParams"] = {"sourceImage": "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/family/debian-9"}
+                        list.append(element_translated["properties"][translate_type[infrastructure[element_nested]["type"]]], element_current)
                     elif infrastructure[element_nested]["type"] == 2:
                         element_current["network"] = "https://www.googleapis.com/compute/v1/projects/" + GOOGLE_PROJECT + "/global/networks/default"
                         element_current["accessConfigs"] = [{"name": "External NAT", "type": "ONE_TO_ONE_NAT"}]
                         list.append(element_translated["properties"][translate_type[infrastructure[element_nested]["type"]]], element_current)
+            list.append(infrastructure_aux["resources"], element_translated)
+            i += 1
+        elif element["type"] == 3:
+            element_translated = OrderedDict()
+            element_translated["type"] = translate_resource[element["type"]]
+            element_translated["name"] = resource_names[element["type"]] + "-" + str(i)
+            element_translated["properties"] = OrderedDict()
+            element_translated["properties"]["zone"] = zone
+            element_translated["properties"]["backendType"] = "SECOND_GEN"
+            element_translated["properties"]["databaseVersion"] = "POSTGRES_9_6"
+            element_translated["properties"]["settings"] = {"tier": "db-custom-1-3840", "backupConfiguration": {"enabled": True}}
             list.append(infrastructure_aux["resources"], element_translated)
             i += 1
     yaml.add_representer(OrderedDict, represent_ordereddict)
