@@ -22,6 +22,7 @@ import uuid
 
 from .machine import Square
 import operator
+import math
 
 def find_closest_google_center(center: str):
     keys = ["asia-east1", "asia-east2", "asia-northeast1", "asia-south1", "asia-southeast1", "australia-southeast1", "europe-north1", "europe-west1", "europe-west2", "europe-west3", "europe-west4", "europe-west6", "northamerica-northeast1", "southamerica-east1", "us-central1", "us-east1", "us-east4", "us-west1", "us-west2"]
@@ -34,8 +35,7 @@ def find_type(label: str):
     values = {
         "vm": 0,
         "net": 2,
-        "d": 1,
-        '-': 3
+        "dk": 1,
     }
 
     label = label.lower()
@@ -44,11 +44,16 @@ def find_type(label: str):
     keys = sorted(keys, key = lambda x : SequenceMatcher(None, x, label).ratio(), reverse = True)
     best_one = keys[0]
     result = values[best_one]
-    if(result == '-'):
-        return None
-    else:
-        return result
+    return result
 
+
+def compute_centre(bounding):
+    x = bounding[0] + (bounding[0] - bounding[3])/2
+    y = bounding[1] + (bounding[1] - bounding[7])/2
+    return x, y
+
+def compute_distance(obj1, obj2):
+    return math.sqrt(pow(obj2[0]-obj1[0], 2) + pow(obj2[1]-obj1[1], 2))
 
 def get_text(image: str):
     headers = {
@@ -69,56 +74,64 @@ def get_text(image: str):
         network = {}
         squares = []
         foundCenter = None
+
+        elements = {
+            0: [],
+            1: [],
+            2: []
+        }
+        elements_copy = {}
         for l in d['recognitionResult']['lines']:
             for w in l['words']:
-                i = uuid.uuid4()
+                closest, probability = find_closest_google_center(l['text'])
+                if probability > 0.8:
+                    foundCenter = closest
+                    continue
                 t = find_type(w['text'])
-                if(t):
-                    s = Square(str(i), t, w['boundingBox'])
-                    if(t == 1):
-                        squares[-1].set_disk(str(i))
-                    closest, probability = find_closest_google_center(l['text'])
-                    if probability > 0.8:
-                        foundCenter = closest
-                        continue
-                    squares.append(s)
+                uid = str(uuid.uuid4())
+                w['id'] = uid
+                elements[t].append(w)
+                elements_copy[uid] = {
+                    'type': t,
+                    'linked': []
+                }
+        for key,element in elements.items():
+            for item in element:
+                cntr1 = compute_centre(item['boundingBox'])
+                if( key == 0 ):
+                    for key2 in [1,2]:
+                        for element3 in elements[key2]:
+                            cntr2 = compute_centre(element3['boundingBox'])
+                            dis = compute_distance(cntr1, cntr2)
+                            if( dis < 450 and key2 == 2):
+                                elements_copy[item['id']]['linked'].append(element3['id'])
+                if(key == 1):
+                    for key2 in [0]:
+                        prop = None
+                        prop2 = None
+                        dist = 10000
+                        dist2 = 10000
+                        for element3 in elements[key2]:
+                            cntr2 = compute_centre(element3['boundingBox'])
+                            dis = compute_distance(cntr1, cntr2)
+                            if( dis < 750 and key2 == 0 and (dis < dist or dis < dist2)):
+                                disk = False
+                                for d in elements_copy[element3['id']]['linked']:
+                                    disk = (elements_copy[d]['type'] == 1 or disk)
+                                if(not disk and dis<dist):
+                                    prop = element3['id']
+                                    dist = dis
+                                elif(dis < dist2):
+                                    prop2 = element3['id']
+                                    dist2 = dis
+            
+                        if(prop):
+                            elements_copy[prop]['linked'].append(item['id'])
+                        elif(prop2):
+                            elements_copy[prop2]['linked'].append(item['id'])
 
-
-        groups = []
-        ant = None
-        g = []
-        squares.sort()
-        for s in squares:
-            if(ant is None or Square.solapaX(ant,s)):
-                g.append(s)
-            else:
-                if(len(g)>0):
-                    groups.append(g)
-                g = []
-            ant = s
-        if(len(g)>0):
-            groups.append(g)
-
-        network = {}
-        for r in groups:
-            for sr in r:
-                if(sr.tipo == 1):
-                    rela = []
-                    for w in r:
-                        if(sr.i == w.disk):
-                            rela.append(str(w.i))
-                    network[sr.i] = {
-                        'type': sr.tipo,
-                        'linked': list(rela)
-                    }
-                else:
-                    related = [x.i for x in r if x.i != sr.i]
-                    network[sr.i] = {
-                            'type': sr.tipo,
-                            'linked': list(related)
-                        }
-        return network, foundCenter
-    
+                
+        return elements_copy, foundCenter
     #VERY BAD
     return dict(), None
 
