@@ -1,3 +1,4 @@
+import datetime
 import json
 import random
 import string
@@ -11,6 +12,7 @@ from page import models
 url_template = "https://www.googleapis.com/deploymentmanager/v2/projects/" + GOOGLE_PROJECT + "/global/deployments"
 url_template_get = "https://www.googleapis.com/deploymentmanager/v2/projects/" + GOOGLE_PROJECT + "/global/deployments/"
 url_operation_get = "https://www.googleapis.com/deploymentmanager/v2/projects/" + GOOGLE_PROJECT + "/global/operation/"
+url_metrics_get = "https://monitoring.googleapis.com/v3/projects/" + GOOGLE_PROJECT + "/timeSeries/"
 
 
 def _deploy(data: dict, token: str):
@@ -63,6 +65,23 @@ def _get_status(token: str, operation_name: str):
         'Authorization': "Bearer " + token,
         'Content-Type': "application/json",
     }
+    response = requests.request("GET", url_tmp, headers=headers)
+    if response:
+        return json.loads(response.text)
+    return dict()
+
+
+def _get_metrics(token: str, metric_name: str, machine_name: str):
+    url_tmp = url_metrics_get
+    headers = {
+        'Authorization': "Bearer " + token,
+        'Content-Type': "application/json",
+    }
+    time_current = datetime.datetime.now()
+    time_previous = time_current - datetime.timedelta(minutes=30)
+    time_current = datetime.datetime.strftime(time_current, "%Y-%m-%dT%G:%i:00Z")
+    time_previous = datetime.datetime.strftime(time_previous, "%Y-%m-%dT%G:%i:00Z")
+    url_tmp += "?name=" + GOOGLE_PROJECT + "&filter==" + metric_name + " AND " + machine_name + "&interval.startTime=" + time_current + "&interval.endTime=" + time_previous
     response = requests.request("GET", url_tmp, headers=headers)
     if response:
         return json.loads(response.text)
