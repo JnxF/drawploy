@@ -37,5 +37,5 @@ class PageAPI(ViewSet):
 
     @action(detail=True, methods=['get'])
     def metrics(self, request, pk):
-        page = metrics(request.GET.get('token'), email=request.GET.get('email'), pk=pk, zone=request.GET.get('zone'))
+        page = metrics(request.GET.get('token'), email=request.GET.get('email'), pk=pk, zone=request.GET.get('region'))
         return Response(page)
