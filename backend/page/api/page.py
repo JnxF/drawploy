@@ -23,12 +23,19 @@ import uuid
 from .machine import Square
 import operator
 
+def find_closest_google_center(center: str):
+    keys = ["asia-east1", "asia-east2", "asia-northeast1", "asia-south1", "asia-southeast1", "australia-southeast1", "europe-north1", "europe-west1", "europe-west2", "europe-west3", "europe-west4", "europe-west6", "northamerica-northeast1", "southamerica-east1", "us-central1", "us-east1", "us-east4", "us-west1", "us-west2"]
+    center = center.lower()
+    keys = sorted(keys, key = lambda x : SequenceMatcher(None, x, center).ratio(), reverse = True)
+    return keys[0], SequenceMatcher(None, keys[0], center).ratio()
+
+
 def find_type(label: str):
     values = {
         "vm": 0,
         "net": 2,
-        "bd": 1,
-
+        "d": 1,
+        '-': 3
     }
 
     label = label.lower()
@@ -36,7 +43,11 @@ def find_type(label: str):
     keys = list(values.keys())
     keys = sorted(keys, key = lambda x : SequenceMatcher(None, x, label).ratio(), reverse = True)
     best_one = keys[0]
-    return values[best_one]
+    result = values[best_one]
+    if(result == '-'):
+        return None
+    else:
+        return result
 
 
 def get_text(image: str):
@@ -54,13 +65,20 @@ def get_text(image: str):
         while(d['status'] == 'Running'):
             r = requests.get(res.headers['Operation-Location'], headers=headers)
             d = json.loads(r.content)
+            print(d)
         network = {}
         squares = []
+        foundCenter = None
         for l in d['recognitionResult']['lines']:
-            i = uuid.uuid4()
-            t = find_type(l['text'])
-            s = Square(str(i), t, l['boundingBox'])
-            squares.append(s)
+            for w in l['words']:
+                i = uuid.uuid4()
+                t = find_type(w['text'])
+                if(t):
+                    s = Square(str(i), t, w['boundingBox'])
+                    if(t == 1):
+                        squares[-1].set_disk(str(i))
+                    squares.append(s)
+
 
         groups = []
         ant = None
@@ -74,16 +92,27 @@ def get_text(image: str):
                     groups.append(g)
                 g = []
             ant = s
-        
+        if(len(g)>0):
+            groups.append(g)
 
         network = {}
         for r in groups:
             for sr in r:
-                related = [x.i for x in r if x.i != sr.i]
-                network[sr.i] = {
+                if(sr.tipo == 1):
+                    rela = []
+                    for w in r:
+                        if(sr.i == w.disk):
+                            rela.append(str(w.i))
+                    network[sr.i] = {
                         'type': sr.tipo,
-                        'linked': list(related)
+                        'linked': list(rela)
                     }
+                else:
+                    related = [x.i for x in r if x.i != sr.i]
+                    network[sr.i] = {
+                            'type': sr.tipo,
+                            'linked': list(related)
+                        }
         return network
     
     #VERY BAD
@@ -120,6 +149,7 @@ def detectDraw(base64request: str):
 
 
         if cv2.contourArea(cnts[0]) < 0.4 * width * height:
+            print("Adiosita")
             return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
         screenCnt = -1
@@ -163,21 +193,18 @@ def detectDraw(base64request: str):
         return warped
 
     def detectContours(neta):
-        edges = cv2.Canny(neta, 100, 200)
-        #edges = cv2.dilate(edges, None, iterations=1)
-        #edges = cv2.erode(edges, None, iterations=1)
+        blurred = cv2.GaussianBlur(neta, (5, 5), 0)
+        thresh = cv2.threshold(blurred, 60, 255, cv2.THRESH_BINARY)[1]
 
-        cnts, hierarchy = cv2.findContours(edges, cv2.RETR_LIST , cv2.CHAIN_APPROX_SIMPLE)
+        _, cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,
+                               cv2.CHAIN_APPROX_SIMPLE)
 
-        final = cv2.cvtColor(edges, cv2.COLOR_GRAY2RGB)
-
+        cnts = imutils.grab_contours(cnts)
         detected = []
 
         i = 0
         for c in cnts:
             area = cv2.contourArea(c)
-            if area < 200:
-                continue
 
             peri = cv2.arcLength(c, True)
             approx = cv2.approxPolyDP(c, 0.04 * peri, True)
@@ -214,7 +241,8 @@ def detectDraw(base64request: str):
 
 
 def create(image: str, token: str, email: str):
-    infrastructure = get_text(image)
+    infrastructure, foundCenter = get_text(image)
+    foundCenter = foundCenter if foundCenter is not None else "us-central1-f"
     # infrastructure = detectDraw(image)
     infrastructure_2 = {
         "81b98e47-6eea-43f8-a34c-70354464d160": {
@@ -230,7 +258,7 @@ def create(image: str, token: str, email: str):
             "linked": []
         }
     }
-    infrastructure_json = infrastructure_to_json(infrastructure, google_resource_type, google_property_type, "us-central1-f")
+    infrastructure_json = infrastructure_to_json(infrastructure, google_resource_type, google_property_type, foundCenter)
     infrastructure_yaml = infrastructure_to_yaml(infrastructure_json)
     result = _create_content(infrastructure_yaml, token)
     result["code"] = infrastructure_json
@@ -272,27 +300,29 @@ def infrastructure_to_json(infrastructure: dict, translate_resource: list, trans
     infrastructure_aux["resources"] = []
     i = 0
     for element_id, element in infrastructure.items():
-        element_translated = OrderedDict()
-        element_translated["type"] = translate_resource[element["type"]]
-        element_translated["name"] = resource_names[element["type"]] + "-" + str(i)
-        element_translated["properties"] = OrderedDict()
-        element_translated["properties"]["zone"] = zone
-        for element_nested in element["linked"]:
-            if element["type"] == 0 and (infrastructure[element_nested]["type"] == 1 or infrastructure[element_nested]["type"] == 2):
-                if translate_type[infrastructure[element_nested]["type"]] not in element_translated["properties"]:
-                    element_translated["properties"][translate_type[infrastructure[element_nested]["type"]]] = []
-                element_current = OrderedDict()
-                if infrastructure[element_nested]["type"] == 1:
-                    element_current["deviceName"] = "name"
-                    element_current["type"] = "PERSISTENT"
-                    element_current["boot"] = "true"
-                    element_current["autoDelete"] = "true"
-                elif infrastructure[element_nested]["type"] == 2:
-                    element_current["network"] = "https://www.googleapis.com/compute/v1/projects/" + GOOGLE_PROJECT + "/global/networks/default"
-                    element_current["accessConfigs"] = {"name": "External NAT", "type": "ONE_TO_ONE_NAT"}
-                    list.append(element_translated["properties"][translate_type[infrastructure[element_nested]["type"]]], element_current)
-        list.append(infrastructure_aux["resources"], element_translated)
-        i += 1
+        if element["type"] == 0:
+            element_translated = OrderedDict()
+            element_translated["type"] = translate_resource[element["type"]]
+            element_translated["name"] = resource_names[element["type"]] + "-" + str(i)
+            element_translated["properties"] = OrderedDict()
+            element_translated["properties"]["zone"] = zone
+            element_translated["properties"]["machineType"] = "https://www.googleapis.com/compute/v1/projects/" + GOOGLE_PROJECT + "/zones/us-central1-f/machineTypes/f1-micro"
+            for element_nested in element["linked"]:
+                if element["type"] == 0 and (infrastructure[element_nested]["type"] == 1 or infrastructure[element_nested]["type"] == 2):
+                    if translate_type[infrastructure[element_nested]["type"]] not in element_translated["properties"]:
+                        element_translated["properties"][translate_type[infrastructure[element_nested]["type"]]] = []
+                    element_current = OrderedDict()
+                    if infrastructure[element_nested]["type"] == 1:
+                        element_current["deviceName"] = "name"
+                        element_current["type"] = "PERSISTENT"
+                        element_current["boot"] = "true"
+                        element_current["autoDelete"] = "true"
+                    elif infrastructure[element_nested]["type"] == 2:
+                        element_current["network"] = "https://www.googleapis.com/compute/v1/projects/" + GOOGLE_PROJECT + "/global/networks/default"
+                        element_current["accessConfigs"] = [{"name": "External NAT", "type": "ONE_TO_ONE_NAT"}]
+                        list.append(element_translated["properties"][translate_type[infrastructure[element_nested]["type"]]], element_current)
+            list.append(infrastructure_aux["resources"], element_translated)
+            i += 1
     yaml.add_representer(OrderedDict, represent_ordereddict)
     return infrastructure_aux
 
