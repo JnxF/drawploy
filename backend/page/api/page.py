@@ -282,6 +282,7 @@ def infrastructure_to_json(infrastructure: dict, translate_resource: list, trans
             element_translated["name"] = resource_names[element["type"]] + "-" + str(i)
             element_translated["properties"] = OrderedDict()
             element_translated["properties"]["zone"] = zone
+            element_translated["properties"]["machineType"] = "https://www.googleapis.com/compute/v1/projects/" + GOOGLE_PROJECT + "/zones/us-central1-f/machineTypes/f1-micro"
             for element_nested in element["linked"]:
                 if element["type"] == 0 and (infrastructure[element_nested]["type"] == 1 or infrastructure[element_nested]["type"] == 2):
                     if translate_type[infrastructure[element_nested]["type"]] not in element_translated["properties"]:
