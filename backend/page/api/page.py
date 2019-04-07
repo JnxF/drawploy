@@ -14,7 +14,7 @@ from PIL import Image
 from imutils.perspective import four_point_transform
 from skimage.filters import threshold_local
 
-from backend.settings import AZURE_KEY
+from backend.settings import AZURE_KEY, GOOGLE_PROJECT
 from page import models
 from page.api.providers.google import _deploy, _create_content, _get_list
 from page.enums import google_resource_type, resource_names, google_property_type
@@ -278,7 +278,7 @@ def infrastructure_to_json(infrastructure: dict, translate_resource: list, trans
         element_translated["properties"] = OrderedDict()
         element_translated["properties"]["zone"] = zone
         for element_nested in element["linked"]:
-            if element["type"] == 0 and infrastructure[element_nested]["type"] == 1 or 2:
+            if element["type"] == 0 and (infrastructure[element_nested]["type"] == 1 or infrastructure[element_nested]["type"] == 2):
                 if translate_type[infrastructure[element_nested]["type"]] not in element_translated["properties"]:
                     element_translated["properties"][translate_type[infrastructure[element_nested]["type"]]] = []
                 element_current = OrderedDict()
@@ -287,6 +287,9 @@ def infrastructure_to_json(infrastructure: dict, translate_resource: list, trans
                     element_current["type"] = "PERSISTENT"
                     element_current["boot"] = "true"
                     element_current["autoDelete"] = "true"
+                elif infrastructure[element_nested]["type"] == 2:
+                    element_current["network"] = "https://www.googleapis.com/compute/v1/projects/" + GOOGLE_PROJECT + "/global/networks/default"
+                    element_current["accessConfigs"] = {"name": "External NAT", "type": "ONE_TO_ONE_NAT"}
                     list.append(element_translated["properties"][translate_type[infrastructure[element_nested]["type"]]], element_current)
         list.append(infrastructure_aux["resources"], element_translated)
         i += 1
