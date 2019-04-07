@@ -23,12 +23,18 @@ import uuid
 from .machine import Square
 import operator
 
+def find_closest_google_center(center: str):
+    keys = ["asia-east1", "asia-east2", "asia-northeast1", "asia-south1", "asia-southeast1", "australia-southeast1", "europe-north1", "europe-west1", "europe-west2", "europe-west3", "europe-west4", "europe-west6", "northamerica-northeast1", "southamerica-east1", "us-central1", "us-east1", "us-east4", "us-west1", "us-west2"]
+    center = center.lower()
+    keys = sorted(keys, key = lambda x : SequenceMatcher(None, x, center).ratio(), reverse = True)
+    return keys[0]
+
+
 def find_type(label: str):
     values = {
         "vm": 0,
         "net": 2,
-        "bd": 1,
-
+        "bd": 1
     }
 
     label = label.lower()
@@ -120,6 +126,7 @@ def detectDraw(base64request: str):
 
 
         if cv2.contourArea(cnts[0]) < 0.4 * width * height:
+            print("Adiosita")
             return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
 
         screenCnt = -1
@@ -163,21 +170,18 @@ def detectDraw(base64request: str):
         return warped
 
     def detectContours(neta):
-        edges = cv2.Canny(neta, 100, 200)
-        #edges = cv2.dilate(edges, None, iterations=1)
-        #edges = cv2.erode(edges, None, iterations=1)
+        blurred = cv2.GaussianBlur(neta, (5, 5), 0)
+        thresh = cv2.threshold(blurred, 60, 255, cv2.THRESH_BINARY)[1]
 
-        cnts, hierarchy = cv2.findContours(edges, cv2.RETR_LIST , cv2.CHAIN_APPROX_SIMPLE)
+        _, cnts = cv2.findContours(thresh.copy(), cv2.RETR_EXTERNAL,
+                               cv2.CHAIN_APPROX_SIMPLE)
 
-        final = cv2.cvtColor(edges, cv2.COLOR_GRAY2RGB)
-
+        cnts = imutils.grab_contours(cnts)
         detected = []
 
         i = 0
         for c in cnts:
             area = cv2.contourArea(c)
-            if area < 200:
-                continue
 
             peri = cv2.arcLength(c, True)
             approx = cv2.approxPolyDP(c, 0.04 * peri, True)
