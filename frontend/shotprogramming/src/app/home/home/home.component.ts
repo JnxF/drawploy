@@ -14,8 +14,8 @@ export class HomeComponent implements OnInit {
   constructor(private _api: ApiService, private _router: Router) {
   }
 
-  edit(fragment: string) {
-    this._router.navigate(['deploy-edition'], {fragment: fragment}).then();
+  edit(id: string, region: string) {
+    this._router.navigate(['maquinas'], {queryParams: {id: id, region: region}});
   }
 
   ngOnInit() {

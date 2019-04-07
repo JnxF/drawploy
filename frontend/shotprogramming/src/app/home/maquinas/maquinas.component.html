@@ -1,0 +1,12 @@
+<div class="list">
+  <div *ngFor="let m of maquinas">
+    <mat-card ngClass="mat-elevation-z2">
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="cloud">developer_board</mat-icon>
+        <mat-card-title>{{m.cpuPlatform}}</mat-card-title>
+        <mat-card-subtitle>{{m.name}} ({{m.id}})</mat-card-subtitle>
+        <mat-icon>memory</mat-icon> {{m.disks.length}}
+      </mat-card-header>
+    </mat-card>
+  </div>
+</div>

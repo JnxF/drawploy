@@ -1,6 +1,6 @@
 <div class="list">
   <div *ngFor="let dep of deployments">
-    <mat-card ngClass="mat-elevation-z2" (click)="edit(dep.id)">
+    <mat-card ngClass="mat-elevation-z2" (click)="edit(dep.id, dep.region)">
       <mat-card-header>
         <mat-icon mat-card-avatar class="cloud">cloud</mat-icon>
         <mat-card-title>{{dep.name}}</mat-card-title>
