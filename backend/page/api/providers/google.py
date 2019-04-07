@@ -85,4 +85,4 @@ def _get_metrics(token: str, metric_name: str, machine_name: str):
     response = requests.request("GET", url_tmp, headers=headers)
     if response:
         return json.loads(response.text)
-    return dict()
+    return {"url": url_tmp}
