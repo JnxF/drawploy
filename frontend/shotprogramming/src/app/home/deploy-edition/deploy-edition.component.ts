@@ -1,7 +1,7 @@
-import {Component, HostBinding, ViewChild} from '@angular/core';
+import {Component, HostBinding, OnDestroy, OnInit, ViewChild} from '@angular/core';
 import {MatInput, MatSnackBar} from "@angular/material";
 import {ApiService} from "../../api/api.service";
-import {ActivatedRoute} from "@angular/router";
+import {ActivatedRoute, Router} from "@angular/router";
 import {ErrorToStringService} from "../../api/error-to-string.service";
 import {Deployment} from "../../model/deployment";
 
@@ -10,34 +10,17 @@ import {Deployment} from "../../model/deployment";
   templateUrl: './deploy-edition.component.html',
   styleUrls: ['./deploy-edition.component.scss']
 })
-export class DeployEditionComponent {
+export class DeployEditionComponent implements OnInit, OnDestroy {
   public deployment: Deployment = null;
   public loading = false;
-  public editedDeploy = false;
+  public deployed = false;
+
+  private _closed = false;
 
   @ViewChild(MatInput) private _input: MatInput;
 
-  public get deploymentStr(): string {
-    return JSON.stringify(this.deployment.code, null, 2);
-  }
-
-  @HostBinding('class.editing')
-  public get areWeEditing(): boolean {
-    return this.deployment != null;
-  }
-
   constructor(private _matSnackbar: MatSnackBar, private _api: ApiService, private _error: ErrorToStringService,
-              private _route: ActivatedRoute) {
-    if (this._route.snapshot.fragment) {
-      this.loading = true;
-      this._api.get<any>(
-        `page/${this._route.snapshot.fragment}/`
-      ).subscribe(deployment => {
-        this.deployment = {id: deployment.content.id, code: deployment.content.code};
-        this.editedDeploy = false;
-        this.loading = false;
-      }, err => this._displayError(this._error.errorToString(err)));
-    }
+              private _router: Router) {
   }
 
   public onFileChange(event) {
@@ -53,9 +36,13 @@ export class DeployEditionComponent {
         this._api.post('page/', {
           image: base64
         }).subscribe((obj: any) => {
-            this.deployment = {id: obj.content.targetId, code: obj.content.code};
-            this.loading = false;
-            this.editedDeploy = false;
+            this.deployment = {
+              id: obj.content.targetId,
+              nameOperation: obj.content.name,
+              code: obj.content.code
+            };
+            this.deployed = true;
+            this._reloadDeploy();
           },
           err => this._displayError(this._error.errorToString(err)));
       });
@@ -64,23 +51,17 @@ export class DeployEditionComponent {
     }
   }
 
-  public deploy() {
-    if (this._input && this.deployment) {
-      this._api.post(`page/${this.deployment.id}/deploy`, {})
-        .subscribe(() => {
-          this._matSnackbar.open('Deployed!', 'Ok', {duration: 5000});
-        }, err => this._displayError(this._error.errorToString(err)));
-    }
-  }
-
-  public save() {
-    if (this._input && this.deployment) {
-      const newDeploy = JSON.parse(this._input.value);
-      this._api.post(`page/${this.deployment.id}`, {content: newDeploy})
-        .subscribe((obj: any) => {
-          this.deployment = obj.content;
-          this.editedDeploy = false;
-        });
+  private _reloadDeploy() {
+    this._api.get<any>(
+      `page/${this.deployment.id}/status/`, undefined,
+      {operationName: this.deployment.nameOperation}
+    ).subscribe(deployment => {
+      if (deployment.content.status === 'DONE') {
+        this._router.navigate(['home']).then();
+      }
+    });
+    if (!this._closed) {
+      setTimeout(() => this._reloadDeploy(), 3000);
     }
   }
 
@@ -98,6 +79,13 @@ export class DeployEditionComponent {
       };
       reader.readAsDataURL(file);
     });
+  }
+
+  ngOnDestroy(): void {
+    this._closed = true;
+  }
+
+  ngOnInit(): void {
   }
 
   private _displayError(error: string) {

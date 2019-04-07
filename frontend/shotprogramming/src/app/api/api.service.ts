@@ -34,8 +34,11 @@ export class ApiService {
     return new URL(url, this._sApiUrl).toString();
   }
 
-  public get<T>(relativeUrl: string, instantiateClass?: Type<T>): Observable<T> {
-    const myPipe = this._http.get(ApiService.sCompleteUrl(relativeUrl), this.options) as Observable<any>;
+  public get<T>(relativeUrl: string, instantiateClass?: Type<T>, params?: any): Observable<T> {
+    const options = Object.assign({}, this.options);
+    options.params = params ? Object.assign({}, this.options.params, params) :
+      Object.assign({}, this.options.params);
+    const myPipe = this._http.get(ApiService.sCompleteUrl(relativeUrl), options) as Observable<any>;
     if (instantiateClass) {
       myPipe.pipe(
         map(obj => new instantiateClass(obj))
