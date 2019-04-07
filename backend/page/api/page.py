@@ -77,6 +77,10 @@ def get_text(image: str):
                     s = Square(str(i), t, w['boundingBox'])
                     if(t == 1):
                         squares[-1].set_disk(str(i))
+                    closest, probability = find_closest_google_center(l['text'])
+                    if probability > 0.8:
+                        foundCenter = closest
+                        continue
                     squares.append(s)
 
 
@@ -113,7 +117,7 @@ def get_text(image: str):
                             'type': sr.tipo,
                             'linked': list(related)
                         }
-        return network
+        return network, foundCenter
     
     #VERY BAD
     return dict()
