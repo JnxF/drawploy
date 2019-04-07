@@ -81,7 +81,7 @@ def _get_metrics(token: str, metric_name: str, machine_name: str):
     time_previous = time_current - datetime.timedelta(minutes=30)
     time_current = datetime.datetime.strftime(time_current, "%Y-%m-%dT%G:%i:00Z")
     time_previous = datetime.datetime.strftime(time_previous, "%Y-%m-%dT%G:%i:00Z")
-    url_tmp += "?name=" + GOOGLE_PROJECT + "&filter==" + metric_name + " AND " + machine_name + "&interval.startTime=" + time_current + "&interval.endTime=" + time_previous
+    url_tmp += "?name=" + GOOGLE_PROJECT + "&filter==" + metric_name + "&interval.startTime=" + time_current + "&interval.endTime=" + time_previous
     response = requests.request("GET", url_tmp, headers=headers)
     if response:
         return json.loads(response.text)
