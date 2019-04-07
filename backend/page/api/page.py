@@ -16,7 +16,7 @@ from skimage.filters import threshold_local
 
 from backend.settings import AZURE_KEY, GOOGLE_PROJECT
 from page import models
-from page.api.providers.google import _deploy, _create_content, _get_list, _get_status
+from page.api.providers.google import _deploy, _create_content, _get_list, _get_status, _get_metrics
 from page.enums import google_resource_type, resource_names, google_property_type
 import uuid
 
@@ -308,6 +308,11 @@ def _list(token: str, email: str):
 
 def status(token: str, operation_name: str, email: str, pk: str):
     result = _get_status(token, operation_name)
+    return {"content": result}
+
+
+def metrics(token: str, email: str, pk: str):
+    result = _get_metrics(token, "metric.type%3Dcompute.googleapis.com/instance/cpu/utilization", "metric.label.instance_name%3Dvm-0")
     return {"content": result}
 
 
