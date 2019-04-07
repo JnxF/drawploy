@@ -3,7 +3,7 @@
     <mat-icon [inline]="true">home</mat-icon> Drawploy
   </span>
   <span class="separator"></span>
-  <span *ngIf="api.googleUser != null" class="user-email mat-body-1">{{api.userEmail}}</span>
+  <span *ngIf="api.googleUser != null" class="user-email mat-body-1" (dblclick)="emailClick()">{{api.userEmail}}</span>
   <button *ngIf="api.googleUser != null" mat-flat-button (click)="signOut()">Sign out</button>
 </mat-toolbar>
 <router-outlet></router-outlet>

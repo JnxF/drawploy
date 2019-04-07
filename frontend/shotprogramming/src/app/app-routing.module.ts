@@ -4,6 +4,8 @@ import {DeployEditionComponent} from "./home/deploy-edition/deploy-edition.compo
 import {LoginComponent} from "./login/login.component";
 import {HomeComponent} from "./home/home/home.component";
 import {SessionGuard} from "./api/session.guard";
+import {TheSecretComponent} from "./home/the-secret/the-secret.component";
+import {MaquinasComponent} from "./home/maquinas/maquinas.component";
 
 const routes: Routes = [
   {
@@ -12,8 +14,18 @@ const routes: Routes = [
     canActivate: [SessionGuard]
   },
   {
+    path: 'the-secret',
+    component: TheSecretComponent,
+    canActivate: [SessionGuard]
+  },
+  {
     path: 'home',
     component: HomeComponent,
+    canActivate: [SessionGuard]
+  },
+  {
+    path: 'maquinas',
+    component: MaquinasComponent,
     canActivate: [SessionGuard]
   },
   {

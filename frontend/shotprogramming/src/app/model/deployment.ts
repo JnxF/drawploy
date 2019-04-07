@@ -7,6 +7,7 @@ export interface Deployment {
 export interface DeploymentShort {
   name: string;
   id: string;
+  region: string;
 }
 
 export interface Resource<T extends DeploymentProperties> {

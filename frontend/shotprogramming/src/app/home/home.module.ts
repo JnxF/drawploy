@@ -11,9 +11,11 @@ import {
 } from "@angular/material";
 import { HomeComponent } from './home/home.component';
 import {RouterModule} from "@angular/router";
+import { TheSecretComponent } from './the-secret/the-secret.component';
+import { MaquinasComponent } from './maquinas/maquinas.component';
 
 @NgModule({
-  declarations: [DeployEditionComponent, HomeComponent],
+  declarations: [DeployEditionComponent, HomeComponent, TheSecretComponent, MaquinasComponent],
   imports: [
     CommonModule,
     RouterModule,

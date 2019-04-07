@@ -35,3 +35,31 @@
     height: 7rem;
   }
 }
+
+@media screen and (max-width: 952px) {
+  button.initial {
+    font-size: 2rem !important;
+
+    mat-icon {
+      font-size: 3rem;
+      width: 3rem;
+      height: 3rem;
+    }
+  }
+}
+
+@media screen and (max-width: 552px) {
+  button.initial {
+    font-size: 1rem !important;
+
+    mat-icon {
+      font-size: 2rem;
+      width: 2rem;
+      height: 2rem;
+    }
+
+    span {
+      overflow: hidden;
+    }
+  }
+}
