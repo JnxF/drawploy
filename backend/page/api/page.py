@@ -332,7 +332,7 @@ def infrastructure_to_json(infrastructure: dict, translate_resource: list, trans
             element_translated["properties"]["zone"] = zone
             element_translated["properties"]["machineType"] = "https://www.googleapis.com/compute/v1/projects/" + GOOGLE_PROJECT + "/zones/us-central1-f/machineTypes/f1-micro"
             for element_nested in element["linked"]:
-                if element["type"] == 0 and (infrastructure[element_nested]["type"] == 1 or infrastructure[element_nested]["type"] == 2):
+                if element["type"] == 0 and (infrastructure[element_nested]["type"] in [1, 2]):
                     if translate_type[infrastructure[element_nested]["type"]] not in element_translated["properties"]:
                         element_translated["properties"][translate_type[infrastructure[element_nested]["type"]]] = []
                     element_current = OrderedDict()
@@ -347,6 +347,17 @@ def infrastructure_to_json(infrastructure: dict, translate_resource: list, trans
                         element_current["network"] = "https://www.googleapis.com/compute/v1/projects/" + GOOGLE_PROJECT + "/global/networks/default"
                         element_current["accessConfigs"] = [{"name": "External NAT", "type": "ONE_TO_ONE_NAT"}]
                         list.append(element_translated["properties"][translate_type[infrastructure[element_nested]["type"]]], element_current)
+            list.append(infrastructure_aux["resources"], element_translated)
+            i += 1
+        elif element["type"] == 3:
+            element_translated = OrderedDict()
+            element_translated["type"] = translate_resource[element["type"]]
+            element_translated["name"] = resource_names[element["type"]] + "-" + str(i)
+            element_translated["properties"] = OrderedDict()
+            element_translated["properties"]["zone"] = zone
+            element_translated["properties"]["backendType"] = "SECOND_GEN"
+            element_translated["properties"]["databaseVersion"] = "POSTGRES_9_6"
+            element_translated["properties"]["settings"] = {"tier": "db-custom-1-3840", "backupConfiguration": {"enabled": True}}
             list.append(infrastructure_aux["resources"], element_translated)
             i += 1
     yaml.add_representer(OrderedDict, represent_ordereddict)
