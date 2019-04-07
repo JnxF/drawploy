@@ -334,6 +334,7 @@ def infrastructure_to_json(infrastructure: dict, translate_resource: list, trans
                         element_current["type"] = "PERSISTENT"
                         element_current["boot"] = True
                         element_current["autoDelete"] = True
+                        element_current["initializeParams"] = {"sourceImage": "https://www.googleapis.com/compute/v1/projects/debian-cloud/global/images/family/debian-9"}
                         list.append(element_translated["properties"][translate_type[infrastructure[element_nested]["type"]]], element_current)
                     elif infrastructure[element_nested]["type"] == 2:
                         element_current["network"] = "https://www.googleapis.com/compute/v1/projects/" + GOOGLE_PROJECT + "/global/networks/default"
