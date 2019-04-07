@@ -1,5 +1,9 @@
 /* You can add global styles to this file, and also import other style files */
 
+* {
+  outline: none;
+}
+
 html, body {
   height: 100%;
 }
@@ -7,7 +11,8 @@ html, body {
 body {
   margin: 0;
   font-family: Roboto, "Helvetica Neue", sans-serif;
-  background-image: url('assets/background.jpg');
+  background-color: #9d44f8;
+  background-image: url('assets/background.png');
   background-position: center;
   background-repeat: no-repeat;
   background-attachment: fixed;

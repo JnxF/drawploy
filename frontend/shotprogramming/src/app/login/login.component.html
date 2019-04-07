@@ -1,3 +1,4 @@
-<button mat-flat-button id="googleBtn" class="initial mat-elevation-z2" color="primary">
+<button mat-flat-button id="googleBtn" [class.mat-elevation-z4]="isMouseIn" class="initial"
+        [class.mat-elevation-z2]="!isMouseIn" color="primary" (mouseenter)="mouseIn()" (mouseleave)="mouseOut()">
   <span><mat-icon>person</mat-icon> Sign in with Google</span>
 </button>

@@ -12,6 +12,20 @@ declare const gapi: any;
 export class LoginComponent implements AfterViewInit {
   public auth2: any;
 
+  private _isMouseIn = false;
+
+  get isMouseIn(): boolean {
+    return this._isMouseIn;
+  }
+
+  public mouseIn() {
+    this._isMouseIn = true;
+  }
+
+  public mouseOut() {
+    this._isMouseIn = false;
+  }
+
   public googleInit() {
     if (window['gapi']) {
       gapi.load('auth2', () => {
@@ -26,6 +40,8 @@ export class LoginComponent implements AfterViewInit {
       setTimeout(this.googleInit.bind(this), 1);
     }
   }
+
+
 
   public attachSignin(element) {
     this.auth2.attachClickHandler(element, {},

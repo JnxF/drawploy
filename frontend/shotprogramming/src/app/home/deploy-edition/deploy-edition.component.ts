@@ -1,4 +1,4 @@
-import {Component, ViewChild} from '@angular/core';
+import {Component, HostBinding, ViewChild} from '@angular/core';
 import {MatInput, MatSnackBar} from "@angular/material";
 import {ApiService} from "../../api/api.service";
 import {ActivatedRoute} from "@angular/router";
@@ -6,7 +6,7 @@ import {ErrorToStringService} from "../../api/error-to-string.service";
 import {Deployment} from "../../model/deployment";
 
 @Component({
-  selector: 'app-home',
+  selector: 'app-deploy-edition',
   templateUrl: './deploy-edition.component.html',
   styleUrls: ['./deploy-edition.component.scss']
 })
@@ -19,6 +19,11 @@ export class DeployEditionComponent {
 
   public get deploymentStr(): string {
     return JSON.stringify(this.deployment.code, null, 2);
+  }
+
+  @HostBinding('class.editing')
+  public get areWeEditing(): boolean {
+    return this.deployment != null;
   }
 
   constructor(private _matSnackbar: MatSnackBar, private _api: ApiService, private _error: ErrorToStringService,
@@ -44,10 +49,12 @@ export class DeployEditionComponent {
     const picture = files.item(0);
     if (picture.type.startsWith('image/')) {
       this._fileTo64Base(picture).then(base64 => {
+        this.loading = true;
         this._api.post('page/', {
           image: base64
         }).subscribe((obj: any) => {
             this.deployment = {id: obj.content.targetId, code: obj.content.code};
+            this.loading = false;
             this.editedDeploy = false;
           },
           err => this._displayError(this._error.errorToString(err)));
