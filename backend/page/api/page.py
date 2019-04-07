@@ -25,7 +25,8 @@ import operator
 import math
 
 def find_closest_google_center(center: str):
-    keys = ["asia-east1", "asia-east2", "asia-northeast1", "asia-south1", "asia-southeast1", "australia-southeast1", "europe-north1", "europe-west1", "europe-west2", "europe-west3", "europe-west4", "europe-west6", "northamerica-northeast1", "southamerica-east1", "us-central1", "us-east1", "us-east4", "us-west1", "us-west2"]
+    keys = ["asia-east1", "asia-east2", "asia-northeast1", "asia-south1", "asia-southeast1", "australia-southeast1", "europe-north1", "europe-west1", "europe-west2", "europe-west3", "europe-west4", "europe-west6", "northamerica-northeast1", "southamerica-east1", "us-central1", "us-east1", "us-east4", "us-west1", "us-west2", "eu-central", "eu-west2", "eu-west3",
+    "eu-west4", "eu-west6", "northamerica-northeast", "southameerica-east", "us-central"]
     center = center.lower()
     keys = sorted(keys, key = lambda x : SequenceMatcher(None, x, center).ratio(), reverse = True)
     return keys[0], SequenceMatcher(None, keys[0], center).ratio()
