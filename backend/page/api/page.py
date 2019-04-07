@@ -27,7 +27,7 @@ def find_closest_google_center(center: str):
     keys = ["asia-east1", "asia-east2", "asia-northeast1", "asia-south1", "asia-southeast1", "australia-southeast1", "europe-north1", "europe-west1", "europe-west2", "europe-west3", "europe-west4", "europe-west6", "northamerica-northeast1", "southamerica-east1", "us-central1", "us-east1", "us-east4", "us-west1", "us-west2"]
     center = center.lower()
     keys = sorted(keys, key = lambda x : SequenceMatcher(None, x, center).ratio(), reverse = True)
-    return keys[0]
+    return keys[0], SequenceMatcher(None, keys[0], center).ratio()
 
 
 def find_type(label: str):
@@ -62,10 +62,17 @@ def get_text(image: str):
             d = json.loads(r.content)
         network = {}
         squares = []
+        foundCenter = None
         for l in d['recognitionResult']['lines']:
             i = uuid.uuid4()
             t = find_type(l['text'])
             s = Square(str(i), t, l['boundingBox'])
+
+            closest, probability = find_closest_google_center(l['text'])
+            if probability > 0.8:
+                foundCenter = closest
+                continue
+
             squares.append(s)
 
         groups = []
@@ -90,7 +97,7 @@ def get_text(image: str):
                         'type': sr.tipo,
                         'linked': list(related)
                     }
-        return network
+        return network, foundCenter
     
     #VERY BAD
     return dict()
@@ -218,7 +225,8 @@ def detectDraw(base64request: str):
 
 
 def create(image: str, token: str, email: str):
-    infrastructure = get_text(image)
+    infrastructure, foundCenter = get_text(image)
+    foundCenter = foundCenter if foundCenter is not None else "us-central1-f"
     # infrastructure = detectDraw(image)
     infrastructure_2 = {
         "81b98e47-6eea-43f8-a34c-70354464d160": {
@@ -234,7 +242,7 @@ def create(image: str, token: str, email: str):
             "linked": []
         }
     }
-    infrastructure_json = infrastructure_to_json(infrastructure, google_resource_type, google_property_type, "us-central1-f")
+    infrastructure_json = infrastructure_to_json(infrastructure, google_resource_type, google_property_type, foundCenter)
     infrastructure_yaml = infrastructure_to_yaml(infrastructure_json)
     result = _create_content(infrastructure_yaml, token)
     result["code"] = infrastructure_json
