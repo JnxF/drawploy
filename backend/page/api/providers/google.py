@@ -10,6 +10,7 @@ from page import models
 
 url_template = "https://www.googleapis.com/deploymentmanager/v2/projects/" + GOOGLE_PROJECT + "/global/deployments"
 url_template_get = "https://www.googleapis.com/deploymentmanager/v2/projects/" + GOOGLE_PROJECT + "/global/deployments/"
+url_operation_get = "https://www.googleapis.com/deploymentmanager/v2/projects/" + GOOGLE_PROJECT + "/global/operation/"
 
 
 def _deploy(data: dict, token: str):
@@ -54,3 +55,15 @@ def _create_content(data: dict, token: str):
     return_data["targetName"] = name
     return_data["targetTarget"] = data
     return return_data
+
+
+def _get_status(token: str, operation_name: str):
+    url_tmp = url_operation_get + operation_name
+    headers = {
+        'Authorization': "Bearer " + token,
+        'Content-Type': "application/json",
+    }
+    response = requests.request("GET", url_tmp, headers=headers)
+    if response:
+        return json.loads(response.text)
+    return dict()
