@@ -334,6 +334,7 @@ def infrastructure_to_json(infrastructure: dict, translate_resource: list, trans
                         element_current["type"] = "PERSISTENT"
                         element_current["boot"] = "true"
                         element_current["autoDelete"] = "true"
+                        list.append(element_translated["properties"][translate_type[infrastructure[element_nested]["type"]]], element_current)
                     elif infrastructure[element_nested]["type"] == 2:
                         element_current["network"] = "https://www.googleapis.com/compute/v1/projects/" + GOOGLE_PROJECT + "/global/networks/default"
                         element_current["accessConfigs"] = [{"name": "External NAT", "type": "ONE_TO_ONE_NAT"}]
