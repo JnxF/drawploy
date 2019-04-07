@@ -10,7 +10,7 @@ class Square:
         self.tipo = tipo
     
     def __lt__(self, other):
-        self.minX() < other.minX()
+        return self.minX() < other.minX()
 
     def minX(self):
         return self.box[0]
@@ -20,7 +20,8 @@ class Square:
     
     def minY(self):
         return self.box[1]
-
+ 
     @classmethod
     def solapaX(cls, a, b):
-        return ( (b.minX() >= a.minX() and b.minX() <= a.maxX()) or (a.minX() >= b.minX() and a.minX() <= b.maxX()) )
+        return a.maxX() >= b.minX() and b.maxX() >= a.minX()
+        # return ( (b.minX() >= a.minX() and b.minX() <= a.maxX()) or (a.minX() >= b.minX() and a.minX() <= b.maxX()) )
