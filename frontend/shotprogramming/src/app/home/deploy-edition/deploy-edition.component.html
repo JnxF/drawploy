@@ -1,27 +1,10 @@
+<h1 *ngIf="deployed" class="mat-headline running">Running...</h1>
 <ng-container *ngIf="loading">
   <mat-spinner></mat-spinner>
 </ng-container>
-<ng-container *ngIf="!loading && deployment == null">
+<ng-container *ngIf="!loading && !deployed">
   <button mat-flat-button class="initial mat-elevation-z2" color="primary" (click)="fileInput.click()">
     <span><mat-icon>add_a_photo</mat-icon> Upload drawing</span>
   </button>
   <input type="file" name="image" accept="image/*" (change)="onFileChange($event)" hidden #fileInput>
 </ng-container>
-<mat-card *ngIf="deployment != null">
-  <mat-card-header>
-    <label mat-card-title for="code">Code:</label>
-  </mat-card-header>
-  <mat-form-field appearance="outline" (input)="editedDeploy = true" >
-    <textarea matInput [value]="deploymentStr" id="code" cdkTextareaAutosize [cdkAutosizeMinRows]="15"></textarea>
-  </mat-form-field>
-  <div class="buttons">
-    <button mat-flat-button color="primary" *ngIf="editedDeploy" (click)="save()">
-      <mat-icon>save</mat-icon>
-      Save
-    </button>
-    <button mat-flat-button color="primary" *ngIf="!editedDeploy" (click)="deploy()">
-      <mat-icon>cloud_upload</mat-icon>
-      Drawploy!
-    </button>
-  </div>
-</mat-card>
