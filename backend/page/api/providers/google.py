@@ -11,7 +11,7 @@ from page import models
 
 url_template = "https://www.googleapis.com/deploymentmanager/v2/projects/" + GOOGLE_PROJECT + "/global/deployments"
 url_template_get = "https://www.googleapis.com/deploymentmanager/v2/projects/" + GOOGLE_PROJECT + "/global/deployments/"
-url_operation_get = "https://www.googleapis.com/deploymentmanager/v2/projects/" + GOOGLE_PROJECT + "/global/operation/"
+url_operation_get = "https://www.googleapis.com/deploymentmanager/v2/projects/" + GOOGLE_PROJECT + "/global/operations/"
 url_metrics_get = "https://monitoring.googleapis.com/v3/projects/" + GOOGLE_PROJECT + "/timeSeries/"
 
 
@@ -68,7 +68,7 @@ def _get_status(token: str, operation_name: str):
     response = requests.request("GET", url_tmp, headers=headers)
     if response:
         return json.loads(response.text)
-    return {"url": url_tmp}
+    return dict()
 
 
 def _get_metrics(token: str, metric_name: str, machine_name: str):
