@@ -1,13 +1,15 @@
-<mat-grid-list cols="3" gutterSize="1rem">
-  <mat-grid-tile *ngFor="let dep of deployments">
+<div class="list">
+  <div *ngFor="let dep of deployments">
     <mat-card ngClass="mat-elevation-z2" (click)="edit(dep.id)">
-      <mat-card-title>{{dep.name}}</mat-card-title>
-      <mat-card-subtitle>{{dep.id}}</mat-card-subtitle>
+      <mat-card-header>
+        <mat-icon mat-card-avatar class="cloud">cloud</mat-icon>
+        <mat-card-title>{{dep.name}}</mat-card-title>
+        <mat-card-subtitle>{{dep.id}}</mat-card-subtitle>
+      </mat-card-header>
     </mat-card>
-  </mat-grid-tile>
-  <mat-grid-tile [colspan]="3">
-    <a mat-flat-button [routerLink]="['/deploy-edition']" class="mat-elevation-z2" color="primary">
-      <mat-icon>add</mat-icon> New deployment
-    </a>
-  </mat-grid-tile>
-</mat-grid-list>
+  </div>
+  <a mat-flat-button [routerLink]="['/deploy-edition']" class="mat-elevation-z2" color="primary">
+    <mat-icon>add</mat-icon>
+    New deployment
+  </a>
+</div>
