@@ -36,6 +36,7 @@ def find_type(label: str):
         "vm": 0,
         "net": 2,
         "dk": 1,
+        "db": 3,
     }
 
     label = label.lower()
@@ -105,6 +106,8 @@ def get_text(image: str):
                             dis = compute_distance(cntr1, cntr2)
                             if( dis < 450 and key2 == 2):
                                 elements_copy[item['id']]['linked'].append(element3['id'])
+                            if( dis < 250 and key2 == 3):
+                                elements_copy[item['id']]['linked'].append(element3['id'])
                 if(key == 1):
                     for key2 in [0]:
                         prop = None
@@ -134,7 +137,6 @@ def get_text(image: str):
         return elements_copy, foundCenter
     #VERY BAD
     return dict(), None
-
 
 def detectDraw(base64request: str):
 
