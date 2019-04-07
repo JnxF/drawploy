@@ -286,6 +286,7 @@ def create(image: str, token: str, email: str):
     if result["status"] == "RUNNING":
         deployment = models.Deployment(id=result["targetId"], name=result["targetName"], email=email, target=json.dumps(infrastructure_json), region=foundCenter)
         deployment.save()
+    result["region"] = foundCenter
     return {"content": result}
 
 
