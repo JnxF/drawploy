@@ -5,13 +5,84 @@
   flex: 1 0 auto;
 }
 
+mat-card:hover {
+  border: 1px solid rgba(0, 0, 0, 0.5);
+
+  .cloud {
+    color: black;
+  }
+}
+
+.list {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: flex-start;
+  align-items: center;
+
+  div {
+    box-sizing: border-box;
+    width: 30%;
+    flex: 1 1 auto;
+    display: flex;
+    padding: 0.5rem;
+    margin: 0;
+
+    transition: margin 0.5s ease;
+  }
+
+  div:hover {
+    margin: 0.5rem;
+  }
+}
+
+@media screen and (max-width: 592px) {
+  .list div {
+    width: 100% !important;
+  }
+}
+
+@media screen and (max-width: 992px) {
+  .list div {
+    width: 45%;
+  }
+}
+
+
 mat-card {
-  width: 90%;
-  height: 90%;
+  width: 100%;
+  height: 100%;
   cursor: pointer;
   word-break: break-all;
+  margin: 0;
+  /* Permalink - use to edit and share this gradient: http://colorzilla.com/gradient-editor/#ffffff+0,ffffff+100&1+0,0.7+100 */
+  background-color: rgba(255, 255, 255, 0.5);
+  border: 1px solid white;
+  border-radius: 1.5rem;
+
+  transition: border 1s ease;
+
+  .cloud {
+    font-size: 3rem;
+    color: rgba(0, 0, 0, 0.3);
+    transition: color 1s ease;
+  }
 }
 
 a {
   width: 100%;
+}
+
+@keyframes border-animated {
+  from {border-color: white;}
+  to {border-color: rgba(255, 255, 255, 0);}
+}
+
+a:hover {
+  border: 1px solid;
+  animation-name: border-animated;
+  animation-timing-function: linear;
+  animation-direction: alternate;
+  animation-duration: 1s;
+  animation-iteration-count: infinite;
 }
